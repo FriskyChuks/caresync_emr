@@ -1,13 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CareSync</title>
+
+  <!-- Meta -->
+  <meta name="description" content="Marketplace for Bootstrap Admin Dashboards" />
+  <meta property="og:title" content="Admin Templates - Dashboard Templates" />
+  <meta property="og:description" content="Marketplace for Bootstrap Admin Dashboards" />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="/assets/images/caresync_logo.png" />
+
+  <!-- ========== Core CSS ========== -->
+  <link rel="stylesheet" href="/assets/fonts/remix/remixicon.css" />
+  <link rel="stylesheet" href="/assets/css/main.min.css" />
+
+  <!-- ========== Vendor CSS ========== -->
+  <link rel="stylesheet" href="/assets/vendor/overlay-scroll/OverlayScrollbars.min.css" />
+  <link rel="stylesheet" href="/assets/vendor/daterange/daterange.css" />
+  <link rel="stylesheet" href="/assets/vendor/jquery-ui/jquery-ui.min.css" />
+  <link rel="stylesheet" href="/assets/vendor/datatables/dataTables.bs5.css" />
+  <link rel="stylesheet" href="/assets/vendor/datatables/dataTables.bs5-custom.css" />
+  <link rel="stylesheet" href="/assets/vendor/datatables/buttons/dataTables.bs5-custom.css" />
+</head>
+
+<body>
+  <!-- React Mount Point -->
+  <div id="root"></div>
+
+  <!-- Core Vendor JS -->
+  <script src="/assets/js/jquery.min.js"></script>
+  <script src="/assets/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/moment.min.js"></script>
+
+  <!-- jQuery Plugins -->
+  <script src="/assets/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
+  <script src="/assets/vendor/overlay-scroll/custom-scrollbar.js"></script>
+  <script src="/assets/vendor/daterange/daterange.js"></script>
+  <script src="/assets/vendor/daterange/custom-daterange.js"></script>
+  <script src="/assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+  <script src="/assets/vendor/jquery-ui/custom.js"></script>
+
+  <!-- ApexCharts -->
+  <!-- <script src="/assets/vendor/apex/apexcharts.min.js"></script>
+  <script src="/assets/vendor/apex/custom/chart-colors.js"></script>
+  <script src="/assets/vendor/apex/custom/home/patients.js"></script>
+  <script src="/assets/vendor/apex/custom/home/department-income.js"></script>
+  <script src="/assets/vendor/apex/custom/home/income.js"></script>
+  <script src="/assets/vendor/apex/custom/home/appointments-overview.js"></script> -->
+  <script src="/assets/vendor/apex/custom/home/sparklines.js"></script>
+
+  <!-- DataTables -->
+  <script src="/assets/vendor/datatables/dataTables.min.js"></script>
+  <script src="/assets/vendor/datatables/dataTables.bootstrap.min.js"></script>
+  <script src="/assets/vendor/datatables/custom/custom-datatables.js"></script>
+
+  <!-- App Custom JS -->
+  <script src="/assets/js/custom.js"></script>
+
+  <!-- Delay Sidebar Init until React renders -->
+  <script type="module">
+    import '/src/main.jsx';
+
+    // Wait until React mounts and sidebar menu exists
+    const initSidebar = () => {
+      if (window.$ && $(".sidebar-menu").length) {
+        if ($.sidebarMenu) {
+          $.sidebarMenu($(".sidebar-menu"));
+        }
+      } else {
+        // Retry after short delay if menu not yet present
+        setTimeout(initSidebar, 200);
+      }
+    };
+
+    initSidebar();
+  </script>
+</body>
+
 </html>
