@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+Sitemap: https://caresync.friskytech.com.ng/sitemap.xml
+
+# Crawl-delay for search engines
+Crawl-delay: 10

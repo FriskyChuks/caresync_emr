@@ -9,4 +9,5 @@ urlpatterns = [
     path('wards/<int:pk>/', WardDetailView.as_view(), name='ward-detail'),
     path('clinics/<int:pk>/patients/', ClinicPatientListView.as_view(), name='clinic-patients'),
     path('wards/<int:pk>/patients/', WardPatientListView.as_view(), name='ward-patients'),
+    path("wards/<int:ward_id>/rooms/", WardRoomsWithBedsView.as_view(), name="ward-rooms"),
 ]

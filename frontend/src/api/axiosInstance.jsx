@@ -1,11 +1,11 @@
 // src/api/axiosInstance.jsx
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" },
+  // Remove default Content-Type header - let it be set dynamically
 });
 
 /**
@@ -26,6 +26,15 @@ export const setupAxiosInterceptors = (logout, tryRefreshAccessToken) => {
       if (token) {
         config.headers.Authorization = `CARESYNC ${token}`;
       }
+      
+      // IMPORTANT: Don't set Content-Type for FormData - let browser set it with boundary
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+      } else if (!config.headers['Content-Type']) {
+        // Only set default for non-FormData requests
+        config.headers['Content-Type'] = 'application/json';
+      }
+      
       return config;
     },
     (error) => Promise.reject(error)

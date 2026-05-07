@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import PasswordInput from "./PasswordInput";
 import useAuth from "../../hooks/useAuth";
-
-/**
- * ChangePassword.jsx
- * - For logged-in users to change their own password.
- * - Calls POST /auth/users/set_password/ (Djoser standard).
- * - On success: sets a flag and logs the user out so they re-login with new password.
- */
+import { 
+  Key, 
+  Lock, 
+  AlertCircle, 
+  CheckCircle,
+  Heart,
+  Shield,
+  LogOut
+} from "lucide-react";
 
 const ChangePassword = () => {
   const [currentPwd, setCurrentPwd] = useState("");
@@ -33,7 +35,6 @@ const ChangePassword = () => {
     setErrorMsg("");
     setSuccessMsg("");
 
-    // client-side validations
     if (!currentPwd || !newPwd || !confirmPwd) {
       setErrorMsg("All fields are required.");
       return;
@@ -42,29 +43,26 @@ const ChangePassword = () => {
       setErrorMsg("New password and confirmation do not match.");
       return;
     }
-    if (newPwd.length < 3) {
-      setErrorMsg("New password must be at least 4 characters long.");
+    if (newPwd.length < 8) {
+      setErrorMsg("New password must be at least 8 characters long.");
       return;
     }
 
     setLoading(true);
     try {
-      // Endpoint used for logged-in user to change their password
       await axiosInstance.post("/auth/users/set_password/", {
         current_password: currentPwd,
         new_password: newPwd,
       });
 
-      // Show message then force logout so the user signs in with new password
       setSuccessMsg(
-        "Password updated. You will be logged out and must sign in with your new password."
+        "Password updated successfully. You will be logged out and must sign in with your new password."
       );
 
-      // optional: flag so Login page shows a friendly message after redirect
       localStorage.setItem("password_reset_success", "1");
 
       timerRef.current = setTimeout(() => {
-        logout(); // AuthProvider.logout() should clear tokens and redirect to /login
+        logout();
       }, 1400);
     } catch (err) {
       console.error("Change password error:", err);
@@ -81,67 +79,131 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className="login-bg">
-      <div className="container">
-        <div className="auth-wrapper">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center mb-4">
+            <div className="h-14 w-14 bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl flex items-center justify-center shadow-lg">
+              <Lock className="h-7 w-7 text-white" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Update Password
+          </h1>
+          <p className="text-gray-600">
+            Change your account password
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
           <form onSubmit={handleSubmit} noValidate>
-            <div className="auth-box">
-              <Link to="/" className="auth-logo mb-4">
-                <img src="assets/images/logo.svg" alt="App logo" />
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Change Password</h2>
+              <p className="text-gray-600 text-sm">
+                Enter your current and new passwords
+              </p>
+            </div>
+
+            {/* Messages */}
+            {errorMsg && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3 animate-fade-in">
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800">{errorMsg}</p>
+                </div>
+              </div>
+            )}
+
+            {successMsg && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-3 animate-fade-in">
+                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-green-800">{successMsg}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Current Password */}
+            <PasswordInput
+              id="currentPwd"
+              label="Current Password"
+              value={currentPwd}
+              onChange={(e) => setCurrentPwd(e.target.value)}
+              placeholder="Enter your current password"
+              disabled={loading}
+              helperText=""
+              className="mb-4"
+            />
+
+            {/* New Password */}
+            <PasswordInput
+              id="newPwd"
+              label="New Password"
+              value={newPwd}
+              onChange={(e) => setNewPwd(e.target.value)}
+              placeholder="Enter your new password"
+              disabled={loading}
+              helperText="At least 8 characters with letters and numbers"
+              className="mb-4"
+            />
+
+            {/* Confirm Password */}
+            <PasswordInput
+              id="confirmPwd"
+              label="Confirm New Password"
+              value={confirmPwd}
+              onChange={(e) => setConfirmPwd(e.target.value)}
+              placeholder="Confirm your new password"
+              disabled={loading}
+              helperText=""
+              className="mb-6"
+            />
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg font-semibold hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <Key className="h-5 w-5" />
+                  <span>Update Password</span>
+                </>
+              )}
+            </button>
+
+            {/* Cancel Link */}
+            <div className="mt-4 text-center">
+              <Link
+                to="/dashboard"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center space-x-1"
+              >
+                <span>Cancel and return to dashboard</span>
               </Link>
+            </div>
 
-              <h4 className="mb-4">Change Password</h4>
-
-              {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
-              {successMsg && <div className="alert alert-success">{successMsg}</div>}
-
-              <div className="mb-3">
-                <label className="form-label" htmlFor="currentPwd">
-                  Current password <span className="text-danger">*</span>
-                </label>
-                <PasswordInput
-                  id="currentPwd"
-                  value={currentPwd}
-                  onChange={(e) => setCurrentPwd(e.target.value)}
-                  placeholder="Enter current password"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label" htmlFor="newPwd">
-                  New password <span className="text-danger">*</span>
-                </label>
-                <PasswordInput
-                  id="newPwd"
-                  value={newPwd}
-                  onChange={(e) => setNewPwd(e.target.value)}
-                  placeholder="Enter new password"
-                  disabled={loading}
-                />
-                <div className="form-text">Your password must be at least 8 characters long.</div>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label" htmlFor="confirmPwd">
-                  Confirm new password <span className="text-danger">*</span>
-                </label>
-                <PasswordInput
-                  id="confirmPwd"
-                  value={confirmPwd}
-                  onChange={(e) => setConfirmPwd(e.target.value)}
-                  placeholder="Confirm new password"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="mb-3 d-grid">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? "Updating..." : "Update password"}
-                </button>
+            {/* Security Notice */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm">
+                <Shield className="h-4 w-4" />
+                <span>For your security, you'll be logged out after changing password</span>
               </div>
             </div>
           </form>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>© {new Date().getFullYear()} CareSync EMR. All rights reserved.</p>
+          <p className="mt-1">Regular password updates enhance security</p>
         </div>
       </div>
     </div>

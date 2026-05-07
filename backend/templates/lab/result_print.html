@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lab Result Report</title>
+
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.15;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .header p {
+            margin: 0.2rem 0;
+        }
+
+        hr {
+            border: 1px solid #000;
+            margin: 0.3rem 0 0.8rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0.8rem;
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+            padding: 0.2rem 0.3rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: #e0f0ff;
+            font-weight: bold;
+        }
+
+        .section-title {
+            background: #f0f0f0;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: left;
+            padding: 0.25rem;
+            border: 1px solid #333;
+        }
+
+        .remark {
+            text-align: left;
+            padding: 0.3rem;
+            font-style: italic;
+            white-space: pre-wrap;
+        }
+
+        .signature-section {
+            margin-top: 1.5rem;
+        }
+
+        .signature-line {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ====================== HEADER ====================== -->
+    <div class="header">
+        {% for addr in address %}
+        <h1 style="color:#032774; margin-bottom:0;">
+            <span style="font-size: 24px;">{{ addr.facility_name }}</span> <br>
+            <span style="font-size: 20px;">{{ addr.sub_name }}</span>
+        </h1>
+        <p><i>
+                c/o {{ addr.address }}; {{ addr.phone1 }};
+                {% if addr.phone2 %}{{ addr.phone2 }};{% endif %}
+                {{ addr.email }}
+            </i></p>
+        {% endfor %}
+    </div>
+
+    <hr />
+
+    <!-- ================== PATIENT INFO ================== -->
+    <p style="margin-bottom: 0.8rem;">
+        Patient Name:
+        <strong style="font-size: 15px;">{{ test_request.patient.name }}</strong> <br>
+
+        Age:
+        {% if test_request.patient.dob %}
+        {{ test_request.patient.dob|timesince }}
+        {% else %}
+        {{ test_request.patient.age }}
+        {% endif %}
+        {% if test_request.patient.age_category %}
+        <i>({{ test_request.patient.age_category }})</i>
+        {% endif %}
+        &nbsp; | &nbsp;
+        Gender: {{ test_request.patient.gender|title }} <br>
+
+        Date Requested: {{ test_request.request_date }}
+    </p>
+
+    <!-- ================== RESULT TABLE ================== -->
+    <table>
+        <thead>
+            <tr>
+                <th>Test / Parameter</th>
+                <th>Result</th>
+                <th>S.I Unit</th>
+                <th>Reference Range</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <!-- COMPLEX TESTS -->
+            {% for result in lab_results %}
+            {% if result.test.is_complex %}
+
+            <tr>
+                <td colspan="4" class="section-title">{{ result.test.name }}</td>
+            </tr>
+
+            {% for sub in sub_test_results %}
+            {% if sub.lab_result.test == result.test %}
+            <tr>
+                <td>{{ sub.sub_test.parameter_name }}</td>
+                <td>{{ sub.result_value|default:"Pending" }}</td>
+                <td>{{ sub.sub_test.si_unit|default:"---" }}</td>
+                <td>
+                    {% if sub.reference_range %}
+                    {{ sub.reference_range.range_value }}
+                    {% else %}
+                    ---
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+
+            {% if result.remark %}
+            <tr>
+                <td colspan="4" class="remark">
+                    <strong>Remark:</strong> {{ result.remark }}
+                </td>
+            </tr>
+            {% endif %}
+
+            {% endif %}
+            {% endfor %}
+
+            <!-- SIMPLE TESTS -->
+            {% for result in lab_results %}
+            {% if not result.test.is_complex %}
+            <tr>
+                <td>{{ result.test.name }}</td>
+                <td>{{ result.result_value|default:"Pending" }}</td>
+                <td>{{ result.test.si_unit|default:"---" }}</td>
+                <td>{{ result.reference_range|default:"---" }}</td>
+            </tr>
+
+            {% if result.remark %}
+            <tr>
+                <td colspan="4" class="remark">
+                    <strong>Remark:</strong> {{ result.remark }}
+                </td>
+            </tr>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+    <!-- ================== SIGNATURES ================== -->
+    <div class="signature-section">
+        <h3 style="text-align:center; margin-bottom:0;">SIGNATURES</h3>
+        <hr />
+
+        <div class="signature-line">
+            <span>Conducted By: ____________________________</span>
+            <span>Supervised By: ____________________________</span>
+        </div>
+    </div>
+
+</body>
+
+</html>

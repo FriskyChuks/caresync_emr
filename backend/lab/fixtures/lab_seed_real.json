@@ -1,0 +1,5053 @@
+[
+  {
+    "model": "lab.LabUnit",
+    "pk": 1,
+    "fields": {
+      "name": "Hematology"
+    }
+  },
+  {
+    "model": "lab.LabUnit",
+    "pk": 2,
+    "fields": {
+      "name": "Clinical Chemistry"
+    }
+  },
+  {
+    "model": "lab.LabUnit",
+    "pk": 3,
+    "fields": {
+      "name": "Microbiology"
+    }
+  },
+  {
+    "model": "lab.LabUnit",
+    "pk": 4,
+    "fields": {
+      "name": "Immunology"
+    }
+  },
+  {
+    "model": "lab.LabUnit",
+    "pk": 5,
+    "fields": {
+      "name": "Parasitology"
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 1,
+    "fields": {
+      "name": "Full Blood Count (FBC)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 1,
+      "price": "1769.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 2,
+    "fields": {
+      "name": "Erythrocyte Sedimentation Rate (ESR)",
+      "is_complex": false,
+      "si_unit": "mm/hr",
+      "lab_unit": 1,
+      "price": "7819.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 3,
+    "fields": {
+      "name": "Reticulocyte Count",
+      "is_complex": false,
+      "si_unit": "%",
+      "lab_unit": 1,
+      "price": "5926.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 4,
+    "fields": {
+      "name": "Sickle Cell Screen (Solubility Test)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 1,
+      "price": "14558.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 5,
+    "fields": {
+      "name": "Coagulation Profile (PT/INR & APTT)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 1,
+      "price": "13572.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 6,
+    "fields": {
+      "name": "Blood Film (Morphology)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 1,
+      "price": "2380.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 7,
+    "fields": {
+      "name": "Liver Function Test (LFT)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "3878.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 8,
+    "fields": {
+      "name": "Renal Function Test (RFT)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "12283.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 9,
+    "fields": {
+      "name": "Blood Glucose (Fasting)",
+      "is_complex": false,
+      "si_unit": "mmol/L",
+      "lab_unit": 2,
+      "price": "2455.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 10,
+    "fields": {
+      "name": "Random Blood Glucose",
+      "is_complex": false,
+      "si_unit": "mmol/L",
+      "lab_unit": 2,
+      "price": "14619.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 11,
+    "fields": {
+      "name": "Lipid Profile",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "14221.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 12,
+    "fields": {
+      "name": "Electrolytes (Na, K, Cl)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "11683.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 13,
+    "fields": {
+      "name": "Thyroid Function Test (TFT)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "4350.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 14,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy)",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "9151.21",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 15,
+    "fields": {
+      "name": "Urine Microscopy/Culture & Sensitivity",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "10419.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 16,
+    "fields": {
+      "name": "Blood Culture",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "10024.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 17,
+    "fields": {
+      "name": "Wound Swab Culture & Sensitivity",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "3582.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 18,
+    "fields": {
+      "name": "Sputum AFB (Ziehl-Neelsen)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "6124.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 19,
+    "fields": {
+      "name": "Throat Swab Culture",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "8955.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 20,
+    "fields": {
+      "name": "HIV Rapid Test",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "8821.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 21,
+    "fields": {
+      "name": "Hepatitis B Surface Antigen (HBsAg)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "2833.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 22,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "7721.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 23,
+    "fields": {
+      "name": "C-Reactive Protein (CRP)",
+      "is_complex": false,
+      "si_unit": "mg/L",
+      "lab_unit": 4,
+      "price": "12596.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 24,
+    "fields": {
+      "name": "Rheumatoid Factor (RF)",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "2788.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 25,
+    "fields": {
+      "name": "Malaria Parasite (MP) Smear",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "10164.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 26,
+    "fields": {
+      "name": "Stool Ova & Cysts (O/C)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "7170.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 27,
+    "fields": {
+      "name": "Helminth Eggs (Stool)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "7341.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 28,
+    "fields": {
+      "name": "Giardia Antigen (Stool)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "11057.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 29,
+    "fields": {
+      "name": "H. pylori Stool Antigen",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "2344.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 30,
+    "fields": {
+      "name": "Peripheral Smear - Malaria Film",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "1602.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 31,
+    "fields": {
+      "name": "Platelet Count",
+      "is_complex": false,
+      "si_unit": "x10^9/L",
+      "lab_unit": 1,
+      "price": "12540.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 32,
+    "fields": {
+      "name": "Mean Platelet Volume (MPV)",
+      "is_complex": false,
+      "si_unit": "fL",
+      "lab_unit": 1,
+      "price": "7953.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 33,
+    "fields": {
+      "name": "Absolute Neutrophil Count (ANC)",
+      "is_complex": false,
+      "si_unit": "x10^9/L",
+      "lab_unit": 1,
+      "price": "6417.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 34,
+    "fields": {
+      "name": "Absolute Lymphocyte Count",
+      "is_complex": false,
+      "si_unit": "x10^9/L",
+      "lab_unit": 1,
+      "price": "7818.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 35,
+    "fields": {
+      "name": "Direct Bilirubin",
+      "is_complex": false,
+      "si_unit": "mg/dL",
+      "lab_unit": 2,
+      "price": "12229.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 36,
+    "fields": {
+      "name": "Indirect Bilirubin",
+      "is_complex": false,
+      "si_unit": "mg/dL",
+      "lab_unit": 2,
+      "price": "13342.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 37,
+    "fields": {
+      "name": "Gamma GT (GGT)",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "12630.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 38,
+    "fields": {
+      "name": "Amylase",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "9753.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 39,
+    "fields": {
+      "name": "Lipase",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "2912.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 40,
+    "fields": {
+      "name": "Fasting Insulin",
+      "is_complex": false,
+      "si_unit": "\u00b5IU/mL",
+      "lab_unit": 2,
+      "price": "3983.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 41,
+    "fields": {
+      "name": "HbA1c",
+      "is_complex": false,
+      "si_unit": "%",
+      "lab_unit": 2,
+      "price": "13771.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 42,
+    "fields": {
+      "name": "Serum Iron",
+      "is_complex": false,
+      "si_unit": "\u00b5mol/L",
+      "lab_unit": 2,
+      "price": "3848.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 43,
+    "fields": {
+      "name": "Total Iron Binding Capacity (TIBC)",
+      "is_complex": false,
+      "si_unit": "\u00b5mol/L",
+      "lab_unit": 2,
+      "price": "9012.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 44,
+    "fields": {
+      "name": "Ferritin",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "11558.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 45,
+    "fields": {
+      "name": "Vitamin B12",
+      "is_complex": false,
+      "si_unit": "pg/mL",
+      "lab_unit": 2,
+      "price": "11724.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 46,
+    "fields": {
+      "name": "Folate",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "5785.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 47,
+    "fields": {
+      "name": "ANA Screen",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "14609.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 48,
+    "fields": {
+      "name": "ASO Titre",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "1723.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 49,
+    "fields": {
+      "name": "Dengue NS1 Antigen",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "9173.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 50,
+    "fields": {
+      "name": "Malaria Rapid Test (RDT)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "11068.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 51,
+    "fields": {
+      "name": "Occult Blood (FOBT)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "7565.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 52,
+    "fields": {
+      "name": "Stool Culture for Salmonella/Shigella",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "6904.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 53,
+    "fields": {
+      "name": "Vaginal Swab Culture",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "10048.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 54,
+    "fields": {
+      "name": "Cervical Screening (HPV)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "2440.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 55,
+    "fields": {
+      "name": "C. difficile Toxin",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "3287.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 56,
+    "fields": {
+      "name": "Serum Protein Electrophoresis (SPEP)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "8513.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 57,
+    "fields": {
+      "name": "Beta HCG (Qualitative)",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "10447.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 58,
+    "fields": {
+      "name": "Beta HCG (Quantitative)",
+      "is_complex": false,
+      "si_unit": "mIU/mL",
+      "lab_unit": 4,
+      "price": "13053.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 59,
+    "fields": {
+      "name": "Cold Agglutinin",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "6406.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 60,
+    "fields": {
+      "name": "Serum Osmolality",
+      "is_complex": false,
+      "si_unit": "mOsm/kg",
+      "lab_unit": 2,
+      "price": "8214.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 61,
+    "fields": {
+      "name": "Creatine Kinase (CK)",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "12787.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 62,
+    "fields": {
+      "name": "CK-MB",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "12970.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 63,
+    "fields": {
+      "name": "Troponin I",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "12349.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 64,
+    "fields": {
+      "name": "ASO Titre - Panel",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "6139.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 65,
+    "fields": {
+      "name": "Troponin I - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "11143.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 66,
+    "fields": {
+      "name": "Lipid Profile - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "11837.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 67,
+    "fields": {
+      "name": "Lipid Profile - Panel - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "6135.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 68,
+    "fields": {
+      "name": "Wound Swab Culture & Sensitivity - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "13803.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 69,
+    "fields": {
+      "name": "Cervical Screening (HPV) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "11749.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 70,
+    "fields": {
+      "name": "Platelet Count - Panel",
+      "is_complex": false,
+      "si_unit": "x10^9/L",
+      "lab_unit": 1,
+      "price": "7637.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 71,
+    "fields": {
+      "name": "Reticulocyte Count - Panel",
+      "is_complex": false,
+      "si_unit": "%",
+      "lab_unit": 1,
+      "price": "2224.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 72,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "2224.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 73,
+    "fields": {
+      "name": "Serum Iron - Panel",
+      "is_complex": false,
+      "si_unit": "\u00b5mol/L",
+      "lab_unit": 2,
+      "price": "4565.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 74,
+    "fields": {
+      "name": "Giardia Antigen (Stool) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "6966.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 75,
+    "fields": {
+      "name": "Blood Culture - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "8260.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 76,
+    "fields": {
+      "name": "Troponin I - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "13280.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 77,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy) - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "8642.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 78,
+    "fields": {
+      "name": "Blood Glucose (Fasting) - Panel",
+      "is_complex": false,
+      "si_unit": "mmol/L",
+      "lab_unit": 2,
+      "price": "3055.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 79,
+    "fields": {
+      "name": "Reticulocyte Count - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "%",
+      "lab_unit": 1,
+      "price": "10754.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 80,
+    "fields": {
+      "name": "Sputum AFB (Ziehl-Neelsen) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "6551.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 81,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "10547.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 82,
+    "fields": {
+      "name": "Troponin I - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "5922.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 83,
+    "fields": {
+      "name": "Beta HCG (Quantitative) - Panel",
+      "is_complex": false,
+      "si_unit": "mIU/mL",
+      "lab_unit": 4,
+      "price": "6972.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 84,
+    "fields": {
+      "name": "Dengue NS1 Antigen - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "3879.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 85,
+    "fields": {
+      "name": "Dengue NS1 Antigen - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "9398.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 86,
+    "fields": {
+      "name": "Troponin I - Panel - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "13624.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 87,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy) - Panel - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "14476.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 88,
+    "fields": {
+      "name": "Thyroid Function Test (TFT) - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "11144.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 89,
+    "fields": {
+      "name": "Throat Swab Culture - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "4863.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 90,
+    "fields": {
+      "name": "ASO Titre - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "7866.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 91,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy) - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "12457.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 92,
+    "fields": {
+      "name": "Sputum AFB (Ziehl-Neelsen) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "2366.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 93,
+    "fields": {
+      "name": "Sickle Cell Screen (Solubility Test) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 1,
+      "price": "6310.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 94,
+    "fields": {
+      "name": "H. pylori Stool Antigen - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "13756.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 95,
+    "fields": {
+      "name": "Stool Culture for Salmonella/Shigella - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "4717.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 96,
+    "fields": {
+      "name": "Lipase - Panel",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "8973.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 97,
+    "fields": {
+      "name": "HIV Rapid Test - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "13860.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 98,
+    "fields": {
+      "name": "Sputum AFB (Ziehl-Neelsen) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "7105.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 99,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy) - Panel - Panel - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "2912.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 100,
+    "fields": {
+      "name": "C-Reactive Protein (CRP) - Panel",
+      "is_complex": false,
+      "si_unit": "mg/L",
+      "lab_unit": 4,
+      "price": "12682.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 101,
+    "fields": {
+      "name": "Urinalysis (Dipstick + Microscopy) - Panel - Panel",
+      "is_complex": true,
+      "si_unit": "",
+      "lab_unit": 2,
+      "price": "6818.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 102,
+    "fields": {
+      "name": "Troponin I - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "13754.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 103,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "2197.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 104,
+    "fields": {
+      "name": "ASO Titre - Panel",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "14096.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 105,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "11514.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 106,
+    "fields": {
+      "name": "Folate - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "13780.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 107,
+    "fields": {
+      "name": "Dengue NS1 Antigen - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "6426.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 108,
+    "fields": {
+      "name": "Giardia Antigen (Stool) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "12606.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 109,
+    "fields": {
+      "name": "Peripheral Smear - Malaria Film - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 5,
+      "price": "6585.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 110,
+    "fields": {
+      "name": "ASO Titre - Panel - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "IU/mL",
+      "lab_unit": 4,
+      "price": "10702.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 111,
+    "fields": {
+      "name": "Creatine Kinase (CK) - Panel",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "8693.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 112,
+    "fields": {
+      "name": "Sputum AFB (Ziehl-Neelsen) - Panel - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 3,
+      "price": "13786.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 113,
+    "fields": {
+      "name": "Creatine Kinase (CK) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "U/L",
+      "lab_unit": 2,
+      "price": "12621.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 114,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "11679.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 115,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "8916.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 116,
+    "fields": {
+      "name": "Ferritin - Panel",
+      "is_complex": false,
+      "si_unit": "ng/mL",
+      "lab_unit": 2,
+      "price": "14864.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 117,
+    "fields": {
+      "name": "Serum Iron - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "\u00b5mol/L",
+      "lab_unit": 2,
+      "price": "2570.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 118,
+    "fields": {
+      "name": "Dengue NS1 Antigen - Panel - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "11281.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 119,
+    "fields": {
+      "name": "Blood Glucose (Fasting) - Panel",
+      "is_complex": false,
+      "si_unit": "mmol/L",
+      "lab_unit": 2,
+      "price": "14905.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.Test",
+    "pk": 120,
+    "fields": {
+      "name": "Hepatitis C Antibody (Anti-HCV) - Panel - Panel",
+      "is_complex": false,
+      "si_unit": "",
+      "lab_unit": 4,
+      "price": "12696.00",
+      "is_active": true,
+      "remark": "",
+      "requires_remark": false,
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 1,
+    "fields": {
+      "test": 1,
+      "parameter_name": "WBC",
+      "price": "184.26",
+      "si_unit": "x10^9/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 2,
+    "fields": {
+      "test": 1,
+      "parameter_name": "RBC",
+      "price": "324.71",
+      "si_unit": "x10^12/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 3,
+    "fields": {
+      "test": 1,
+      "parameter_name": "Hemoglobin",
+      "price": "191.93",
+      "si_unit": "g/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 4,
+    "fields": {
+      "test": 1,
+      "parameter_name": "Hematocrit (PCV)",
+      "price": "306.47",
+      "si_unit": "%",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 5,
+    "fields": {
+      "test": 1,
+      "parameter_name": "MCV",
+      "price": "186.52",
+      "si_unit": "fL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 6,
+    "fields": {
+      "test": 1,
+      "parameter_name": "MCH",
+      "price": "244.45",
+      "si_unit": "pg",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 7,
+    "fields": {
+      "test": 1,
+      "parameter_name": "Platelets",
+      "price": "330.66",
+      "si_unit": "x10^9/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 8,
+    "fields": {
+      "test": 5,
+      "parameter_name": "Prothrombin Time (PT)",
+      "price": "4152.88",
+      "si_unit": "seconds",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 9,
+    "fields": {
+      "test": 5,
+      "parameter_name": "INR",
+      "price": "4934.53",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 10,
+    "fields": {
+      "test": 5,
+      "parameter_name": "APTT",
+      "price": "4484.59",
+      "si_unit": "seconds",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 11,
+    "fields": {
+      "test": 7,
+      "parameter_name": "ALT (SGPT)",
+      "price": "601.22",
+      "si_unit": "U/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 12,
+    "fields": {
+      "test": 7,
+      "parameter_name": "AST (SGOT)",
+      "price": "595.74",
+      "si_unit": "U/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 13,
+    "fields": {
+      "test": 7,
+      "parameter_name": "ALP",
+      "price": "792.30",
+      "si_unit": "U/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 14,
+    "fields": {
+      "test": 7,
+      "parameter_name": "Total Bilirubin",
+      "price": "917.99",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 15,
+    "fields": {
+      "test": 7,
+      "parameter_name": "Albumin",
+      "price": "970.75",
+      "si_unit": "g/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 16,
+    "fields": {
+      "test": 8,
+      "parameter_name": "Urea (BUN)",
+      "price": "3983.64",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 17,
+    "fields": {
+      "test": 8,
+      "parameter_name": "Creatinine",
+      "price": "3243.91",
+      "si_unit": "\u00b5mol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 18,
+    "fields": {
+      "test": 8,
+      "parameter_name": "eGFR",
+      "price": "5055.45",
+      "si_unit": "mL/min/1.73m2",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 19,
+    "fields": {
+      "test": 11,
+      "parameter_name": "Total Cholesterol",
+      "price": "3271.15",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 20,
+    "fields": {
+      "test": 11,
+      "parameter_name": "HDL Cholesterol",
+      "price": "2993.04",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 21,
+    "fields": {
+      "test": 11,
+      "parameter_name": "LDL Cholesterol",
+      "price": "4885.13",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 22,
+    "fields": {
+      "test": 11,
+      "parameter_name": "Triglycerides",
+      "price": "3071.68",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 23,
+    "fields": {
+      "test": 12,
+      "parameter_name": "Sodium (Na+)",
+      "price": "5366.46",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 24,
+    "fields": {
+      "test": 12,
+      "parameter_name": "Potassium (K+)",
+      "price": "3051.24",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 25,
+    "fields": {
+      "test": 12,
+      "parameter_name": "Chloride (Cl-)",
+      "price": "3265.30",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 26,
+    "fields": {
+      "test": 13,
+      "parameter_name": "TSH",
+      "price": "1593.84",
+      "si_unit": "\u00b5IU/mL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 27,
+    "fields": {
+      "test": 13,
+      "parameter_name": "Free T4",
+      "price": "1160.57",
+      "si_unit": "ng/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 28,
+    "fields": {
+      "test": 13,
+      "parameter_name": "Free T3",
+      "price": "1595.59",
+      "si_unit": "pg/mL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 29,
+    "fields": {
+      "test": 14,
+      "parameter_name": "Appearance",
+      "price": "2204.39",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 30,
+    "fields": {
+      "test": 14,
+      "parameter_name": "pH",
+      "price": "2087.10",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 31,
+    "fields": {
+      "test": 14,
+      "parameter_name": "Protein",
+      "price": "1696.94",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 32,
+    "fields": {
+      "test": 14,
+      "parameter_name": "Glucose",
+      "price": "2470.71",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 33,
+    "fields": {
+      "test": 14,
+      "parameter_name": "Microscopy - RBC",
+      "price": "2137.86",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 34,
+    "fields": {
+      "test": 66,
+      "parameter_name": "Total Cholesterol Variant",
+      "price": "3177.47",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 35,
+    "fields": {
+      "test": 66,
+      "parameter_name": "HDL Cholesterol Variant",
+      "price": "3139.69",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 36,
+    "fields": {
+      "test": 66,
+      "parameter_name": "LDL Cholesterol Variant",
+      "price": "3349.63",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 37,
+    "fields": {
+      "test": 66,
+      "parameter_name": "Triglycerides Variant",
+      "price": "2170.21",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 38,
+    "fields": {
+      "test": 67,
+      "parameter_name": "Total Cholesterol Variant Variant",
+      "price": "1455.01",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 39,
+    "fields": {
+      "test": 67,
+      "parameter_name": "HDL Cholesterol Variant Variant",
+      "price": "1474.02",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 40,
+    "fields": {
+      "test": 67,
+      "parameter_name": "LDL Cholesterol Variant Variant",
+      "price": "1585.77",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 41,
+    "fields": {
+      "test": 67,
+      "parameter_name": "Triglycerides Variant Variant",
+      "price": "1620.20",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 42,
+    "fields": {
+      "test": 77,
+      "parameter_name": "Appearance Variant",
+      "price": "1961.63",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 43,
+    "fields": {
+      "test": 77,
+      "parameter_name": "pH Variant",
+      "price": "1892.72",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 44,
+    "fields": {
+      "test": 77,
+      "parameter_name": "Protein Variant",
+      "price": "1518.75",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 45,
+    "fields": {
+      "test": 77,
+      "parameter_name": "Glucose Variant",
+      "price": "1348.43",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 46,
+    "fields": {
+      "test": 77,
+      "parameter_name": "Microscopy - RBC Variant",
+      "price": "1920.47",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 47,
+    "fields": {
+      "test": 87,
+      "parameter_name": "Appearance Variant Variant",
+      "price": "2428.56",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 48,
+    "fields": {
+      "test": 87,
+      "parameter_name": "pH Variant Variant",
+      "price": "2874.57",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 49,
+    "fields": {
+      "test": 87,
+      "parameter_name": "Protein Variant Variant",
+      "price": "3351.11",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 50,
+    "fields": {
+      "test": 87,
+      "parameter_name": "Glucose Variant Variant",
+      "price": "2438.49",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 51,
+    "fields": {
+      "test": 87,
+      "parameter_name": "Microscopy - RBC Variant Variant",
+      "price": "3383.27",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 52,
+    "fields": {
+      "test": 88,
+      "parameter_name": "TSH Variant",
+      "price": "3481.06",
+      "si_unit": "\u00b5IU/mL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 53,
+    "fields": {
+      "test": 88,
+      "parameter_name": "Free T4 Variant",
+      "price": "3572.16",
+      "si_unit": "ng/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 54,
+    "fields": {
+      "test": 88,
+      "parameter_name": "Free T3 Variant",
+      "price": "4090.78",
+      "si_unit": "pg/mL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 55,
+    "fields": {
+      "test": 91,
+      "parameter_name": "Appearance Variant",
+      "price": "2113.36",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 56,
+    "fields": {
+      "test": 91,
+      "parameter_name": "pH Variant",
+      "price": "2178.88",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 57,
+    "fields": {
+      "test": 91,
+      "parameter_name": "Protein Variant",
+      "price": "2864.72",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 58,
+    "fields": {
+      "test": 91,
+      "parameter_name": "Glucose Variant",
+      "price": "3022.90",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 59,
+    "fields": {
+      "test": 91,
+      "parameter_name": "Microscopy - RBC Variant",
+      "price": "2277.14",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 60,
+    "fields": {
+      "test": 99,
+      "parameter_name": "Appearance Variant Variant Variant",
+      "price": "489.74",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 61,
+    "fields": {
+      "test": 99,
+      "parameter_name": "pH Variant Variant Variant",
+      "price": "615.86",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 62,
+    "fields": {
+      "test": 99,
+      "parameter_name": "Protein Variant Variant Variant",
+      "price": "557.27",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 63,
+    "fields": {
+      "test": 99,
+      "parameter_name": "Glucose Variant Variant Variant",
+      "price": "522.34",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 64,
+    "fields": {
+      "test": 99,
+      "parameter_name": "Microscopy - RBC Variant Variant Variant",
+      "price": "726.79",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 65,
+    "fields": {
+      "test": 101,
+      "parameter_name": "Appearance Variant Variant",
+      "price": "1263.35",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 66,
+    "fields": {
+      "test": 101,
+      "parameter_name": "pH Variant Variant",
+      "price": "1269.77",
+      "si_unit": "",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 67,
+    "fields": {
+      "test": 101,
+      "parameter_name": "Protein Variant Variant",
+      "price": "1771.51",
+      "si_unit": "mg/dL",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 68,
+    "fields": {
+      "test": 101,
+      "parameter_name": "Glucose Variant Variant",
+      "price": "1253.69",
+      "si_unit": "mmol/L",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.SubTest",
+    "pk": 69,
+    "fields": {
+      "test": 101,
+      "parameter_name": "Microscopy - RBC Variant Variant",
+      "price": "1259.68",
+      "si_unit": "per HPF",
+      "requires_reference_range": true
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 1,
+    "fields": {
+      "test": 1,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 2,
+    "fields": {
+      "test": null,
+      "sub_test": 1,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "4.0 - 11.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 3,
+    "fields": {
+      "test": null,
+      "sub_test": 2,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "4.2 - 5.9"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 4,
+    "fields": {
+      "test": null,
+      "sub_test": 3,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "13.0 - 17.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 5,
+    "fields": {
+      "test": null,
+      "sub_test": 4,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "40 - 54"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 6,
+    "fields": {
+      "test": null,
+      "sub_test": 5,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "80 - 100"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 7,
+    "fields": {
+      "test": null,
+      "sub_test": 6,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "27 - 33"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 8,
+    "fields": {
+      "test": null,
+      "sub_test": 7,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "150 - 450"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 9,
+    "fields": {
+      "test": 2,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 10,
+    "fields": {
+      "test": 3,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 11,
+    "fields": {
+      "test": 4,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 12,
+    "fields": {
+      "test": 5,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 13,
+    "fields": {
+      "test": null,
+      "sub_test": 8,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "11 - 15"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 14,
+    "fields": {
+      "test": null,
+      "sub_test": 9,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "0.8 - 1.2"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 15,
+    "fields": {
+      "test": null,
+      "sub_test": 10,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "25 - 40"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 16,
+    "fields": {
+      "test": 6,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 17,
+    "fields": {
+      "test": 7,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 18,
+    "fields": {
+      "test": null,
+      "sub_test": 11,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "7 - 56"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 19,
+    "fields": {
+      "test": null,
+      "sub_test": 12,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "5 - 40"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 20,
+    "fields": {
+      "test": null,
+      "sub_test": 13,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "44 - 147"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 21,
+    "fields": {
+      "test": null,
+      "sub_test": 14,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "0.3 - 1.2"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 22,
+    "fields": {
+      "test": null,
+      "sub_test": 15,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "3.5 - 5.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 23,
+    "fields": {
+      "test": 8,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 24,
+    "fields": {
+      "test": null,
+      "sub_test": 16,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "2.5 - 7.1"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 25,
+    "fields": {
+      "test": null,
+      "sub_test": 17,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "60 - 110"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 26,
+    "fields": {
+      "test": null,
+      "sub_test": 18,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": ">60"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 27,
+    "fields": {
+      "test": 9,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 28,
+    "fields": {
+      "test": 10,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 29,
+    "fields": {
+      "test": 11,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 30,
+    "fields": {
+      "test": null,
+      "sub_test": 19,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "< 5.2"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 31,
+    "fields": {
+      "test": null,
+      "sub_test": 20,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "> 1.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 32,
+    "fields": {
+      "test": null,
+      "sub_test": 21,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "< 3.4"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 33,
+    "fields": {
+      "test": null,
+      "sub_test": 22,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "< 1.7"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 34,
+    "fields": {
+      "test": 12,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 35,
+    "fields": {
+      "test": null,
+      "sub_test": 23,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "135 - 145"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 36,
+    "fields": {
+      "test": null,
+      "sub_test": 24,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "3.5 - 5.1"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 37,
+    "fields": {
+      "test": null,
+      "sub_test": 25,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "98 - 107"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 38,
+    "fields": {
+      "test": 13,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 39,
+    "fields": {
+      "test": null,
+      "sub_test": 26,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "0.4 - 4.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 40,
+    "fields": {
+      "test": null,
+      "sub_test": 27,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "0.8 - 1.8"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 41,
+    "fields": {
+      "test": null,
+      "sub_test": 28,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "2.3 - 4.2"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 42,
+    "fields": {
+      "test": 14,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 43,
+    "fields": {
+      "test": null,
+      "sub_test": 29,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Clear"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 44,
+    "fields": {
+      "test": null,
+      "sub_test": 30,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "4.6 - 8.0"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 45,
+    "fields": {
+      "test": null,
+      "sub_test": 31,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Negative"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 46,
+    "fields": {
+      "test": null,
+      "sub_test": 32,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Negative"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 47,
+    "fields": {
+      "test": null,
+      "sub_test": 33,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "0 - 2"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 48,
+    "fields": {
+      "test": 15,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 49,
+    "fields": {
+      "test": 16,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 50,
+    "fields": {
+      "test": 17,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 51,
+    "fields": {
+      "test": 18,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 52,
+    "fields": {
+      "test": 19,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 53,
+    "fields": {
+      "test": 20,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 54,
+    "fields": {
+      "test": 21,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 55,
+    "fields": {
+      "test": 22,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 56,
+    "fields": {
+      "test": 23,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 57,
+    "fields": {
+      "test": 24,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 58,
+    "fields": {
+      "test": 25,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 59,
+    "fields": {
+      "test": 26,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 60,
+    "fields": {
+      "test": 27,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 61,
+    "fields": {
+      "test": 28,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 62,
+    "fields": {
+      "test": 29,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 63,
+    "fields": {
+      "test": 30,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 64,
+    "fields": {
+      "test": 31,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 65,
+    "fields": {
+      "test": 32,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 66,
+    "fields": {
+      "test": 33,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 67,
+    "fields": {
+      "test": 34,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 68,
+    "fields": {
+      "test": 35,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 69,
+    "fields": {
+      "test": 36,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 70,
+    "fields": {
+      "test": 37,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 71,
+    "fields": {
+      "test": 38,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 72,
+    "fields": {
+      "test": 39,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 73,
+    "fields": {
+      "test": 40,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 74,
+    "fields": {
+      "test": 41,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 75,
+    "fields": {
+      "test": 42,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 76,
+    "fields": {
+      "test": 43,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 77,
+    "fields": {
+      "test": 44,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 78,
+    "fields": {
+      "test": 45,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 79,
+    "fields": {
+      "test": 46,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 80,
+    "fields": {
+      "test": 47,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 81,
+    "fields": {
+      "test": 48,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 82,
+    "fields": {
+      "test": 49,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 83,
+    "fields": {
+      "test": 50,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 84,
+    "fields": {
+      "test": 51,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 85,
+    "fields": {
+      "test": 52,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 86,
+    "fields": {
+      "test": 53,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 87,
+    "fields": {
+      "test": 54,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 88,
+    "fields": {
+      "test": 55,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 89,
+    "fields": {
+      "test": 56,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 90,
+    "fields": {
+      "test": 57,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 91,
+    "fields": {
+      "test": 58,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 92,
+    "fields": {
+      "test": 59,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 93,
+    "fields": {
+      "test": 60,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 94,
+    "fields": {
+      "test": 61,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 95,
+    "fields": {
+      "test": 62,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 96,
+    "fields": {
+      "test": 63,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 97,
+    "fields": {
+      "test": 64,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 98,
+    "fields": {
+      "test": 65,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 99,
+    "fields": {
+      "test": 66,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 100,
+    "fields": {
+      "test": null,
+      "sub_test": 34,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 101,
+    "fields": {
+      "test": null,
+      "sub_test": 35,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 102,
+    "fields": {
+      "test": null,
+      "sub_test": 36,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 103,
+    "fields": {
+      "test": null,
+      "sub_test": 37,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 104,
+    "fields": {
+      "test": 67,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 105,
+    "fields": {
+      "test": null,
+      "sub_test": 38,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 106,
+    "fields": {
+      "test": null,
+      "sub_test": 39,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 107,
+    "fields": {
+      "test": null,
+      "sub_test": 40,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 108,
+    "fields": {
+      "test": null,
+      "sub_test": 41,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 109,
+    "fields": {
+      "test": 68,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 110,
+    "fields": {
+      "test": 69,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 111,
+    "fields": {
+      "test": 70,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 112,
+    "fields": {
+      "test": 71,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 113,
+    "fields": {
+      "test": 72,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 114,
+    "fields": {
+      "test": 73,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 115,
+    "fields": {
+      "test": 74,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 116,
+    "fields": {
+      "test": 75,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 117,
+    "fields": {
+      "test": 76,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 118,
+    "fields": {
+      "test": 77,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 119,
+    "fields": {
+      "test": null,
+      "sub_test": 42,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 120,
+    "fields": {
+      "test": null,
+      "sub_test": 43,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 121,
+    "fields": {
+      "test": null,
+      "sub_test": 44,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 122,
+    "fields": {
+      "test": null,
+      "sub_test": 45,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 123,
+    "fields": {
+      "test": null,
+      "sub_test": 46,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 124,
+    "fields": {
+      "test": 78,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 125,
+    "fields": {
+      "test": 79,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 126,
+    "fields": {
+      "test": 80,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 127,
+    "fields": {
+      "test": 81,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 128,
+    "fields": {
+      "test": 82,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 129,
+    "fields": {
+      "test": 83,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 130,
+    "fields": {
+      "test": 84,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 131,
+    "fields": {
+      "test": 85,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 132,
+    "fields": {
+      "test": 86,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 133,
+    "fields": {
+      "test": 87,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 134,
+    "fields": {
+      "test": null,
+      "sub_test": 47,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 135,
+    "fields": {
+      "test": null,
+      "sub_test": 48,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 136,
+    "fields": {
+      "test": null,
+      "sub_test": 49,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 137,
+    "fields": {
+      "test": null,
+      "sub_test": 50,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 138,
+    "fields": {
+      "test": null,
+      "sub_test": 51,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 139,
+    "fields": {
+      "test": 88,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 140,
+    "fields": {
+      "test": null,
+      "sub_test": 52,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 141,
+    "fields": {
+      "test": null,
+      "sub_test": 53,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 142,
+    "fields": {
+      "test": null,
+      "sub_test": 54,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 143,
+    "fields": {
+      "test": 89,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 144,
+    "fields": {
+      "test": 90,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 145,
+    "fields": {
+      "test": 91,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 146,
+    "fields": {
+      "test": null,
+      "sub_test": 55,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 147,
+    "fields": {
+      "test": null,
+      "sub_test": 56,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 148,
+    "fields": {
+      "test": null,
+      "sub_test": 57,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 149,
+    "fields": {
+      "test": null,
+      "sub_test": 58,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 150,
+    "fields": {
+      "test": null,
+      "sub_test": 59,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 151,
+    "fields": {
+      "test": 92,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 152,
+    "fields": {
+      "test": 93,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 153,
+    "fields": {
+      "test": 94,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 154,
+    "fields": {
+      "test": 95,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 155,
+    "fields": {
+      "test": 96,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 156,
+    "fields": {
+      "test": 97,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 157,
+    "fields": {
+      "test": 98,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 158,
+    "fields": {
+      "test": 99,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 159,
+    "fields": {
+      "test": null,
+      "sub_test": 60,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 160,
+    "fields": {
+      "test": null,
+      "sub_test": 61,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 161,
+    "fields": {
+      "test": null,
+      "sub_test": 62,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 162,
+    "fields": {
+      "test": null,
+      "sub_test": 63,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 163,
+    "fields": {
+      "test": null,
+      "sub_test": 64,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 164,
+    "fields": {
+      "test": 100,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 165,
+    "fields": {
+      "test": 101,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See subtests"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 166,
+    "fields": {
+      "test": null,
+      "sub_test": 65,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 167,
+    "fields": {
+      "test": null,
+      "sub_test": 66,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 168,
+    "fields": {
+      "test": null,
+      "sub_test": 67,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 169,
+    "fields": {
+      "test": null,
+      "sub_test": 68,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 170,
+    "fields": {
+      "test": null,
+      "sub_test": 69,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "See range"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 171,
+    "fields": {
+      "test": 102,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 172,
+    "fields": {
+      "test": 103,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 173,
+    "fields": {
+      "test": 104,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 174,
+    "fields": {
+      "test": 105,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 175,
+    "fields": {
+      "test": 106,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 176,
+    "fields": {
+      "test": 107,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 177,
+    "fields": {
+      "test": 108,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 178,
+    "fields": {
+      "test": 109,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 179,
+    "fields": {
+      "test": 110,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 180,
+    "fields": {
+      "test": 111,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 181,
+    "fields": {
+      "test": 112,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 182,
+    "fields": {
+      "test": 113,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 183,
+    "fields": {
+      "test": 114,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 184,
+    "fields": {
+      "test": 115,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 185,
+    "fields": {
+      "test": 116,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 186,
+    "fields": {
+      "test": 117,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 187,
+    "fields": {
+      "test": 118,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 188,
+    "fields": {
+      "test": 119,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  },
+  {
+    "model": "lab.ReferenceRange",
+    "pk": 189,
+    "fields": {
+      "test": 120,
+      "sub_test": null,
+      "gender": "Any",
+      "age_min": "18",
+      "age_max": "65",
+      "category": "Adult",
+      "range_value": "Normal"
+    }
+  }
+]

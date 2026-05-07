@@ -1,398 +1,368 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import VitalsForm from "../triage/VitalsForm"
 import { useMessage } from "../../context/MessageProvider";
-import useAuth from '../../hooks/useAuth';
-import { Link, useParams } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
+import { useParams } from "react-router-dom";
 
-const ViewTests = () => {
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [labUnits, setLabUnits] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTest, setSelectedTest] = useState(null);
-
-  const itemsPerPage = 10; // Number of rows per page
-
-  // Fetch all tests from the API when the component mounts
-  useEffect(() => {
-      axiosInstance.get(`/labapi/lab-units/`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => {
-        setLabUnits(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-        console.error("Error fetching tests:", err);
-      });
-
-    axiosInstance.get(`/labapi/tests/create/`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data) => {
-        // Sort descending by id
-        const sorted = data.sort((a, b) => b.id - a.id);
-        setTests(sorted);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-        console.error("Error fetching tests:", err);
-      });
-  }, [baseURL]);
-
-  const getLabUnitName = (id) => {
-    const unit = labUnits.find((u) => u.id === id);
-    return unit ? unit.name : "---";
-  };
-
-  // Filtered tests by search
-  const filteredTests = tests.filter((test) => {
-    const testNameMatch = test.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const subTestMatch = test.sub_tests?.some((st) =>
-      st.parameter_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    return testNameMatch || subTestMatch;
-  });
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredTests.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentTests = filteredTests.slice(startIndex, startIndex + itemsPerPage);
-
-  // View button opens modal
-  const handleViewTest = (test) => {
-    setSelectedTest(test);
-    const modal = new window.bootstrap.Modal(document.getElementById("viewModal"));
-    modal.show();
-  };
-  
-
-  const formatPrice = (price) => {
-    const num = parseFloat(price || 0);
-    return num.toLocaleString("en-NG"); //₦
-  };
-  
-  // Function to calculate price (parent or subtest total)
-  const calculatePrice = (test) => {
-    if (parseFloat(test.price) > 0) {
-      return parseFloat(test.price).toFixed(2);
-    }
-    if (test.sub_tests?.length > 0) {
-      const total = test.sub_tests.reduce((sum, st) => sum + (parseFloat(st.price) || 0), 0);
-      return total.toFixed(2);
-    }
-    return "0.00";
-  };
-
-  if (loading) return <p className="text-center mt-4">Loading tests...</p>;
-  if (error) return <p className="text-center mt-4 text-danger">Error: {error}</p>;
-
+/* ---------------------------
+   ReferenceRangeForm - Beautiful Design
+   --------------------------- */
+const ReferenceRangeForm = ({ ranges, onAdd, onChange, onRemove, compact = false }) => {
   return (
-    <>
-    {/* <div className="card shadow"> */}
-      {/* <div className="card-body"> */}
-        <h3 className="text-center mb-4">All Lab Tests</h3>
-
-        {/* Search */}
-        <div className="mb-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by test or subtest..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg">
+            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h6 className="font-semibold text-gray-800">Reference Ranges</h6>
         </div>
+        <button
+          type="button"
+          onClick={onAdd}
+          className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:shadow-md"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Range
+        </button>
+      </div>
 
-        {/* Table */}
-        <div className="table-responsive">
-          <table id="hideSearchExample" className="table m-0 align-middle">
-            <thead className="table-dark">
-              <tr>
-                <th>#</th>
-                <th>Test</th>
-                <th>Unit</th>
-                <th>Subtest</th>
-                <th>Price</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentTests.length > 0 ? (
-                currentTests.map((test, idx) => (
-                  <tr key={test.id}>
-                    <td>{startIndex + idx + 1}</td>
-                    <td>{test.name}</td>
-                     <td>{getLabUnitName(test.lab_unit)}</td>
-                    <td>
-                      {test.sub_tests?.length > 0
-                        ? test.sub_tests.map((st) => st.parameter_name).join(", ")
-                        : "---"}
-                    </td>
-                    <td>₦{formatPrice(calculatePrice(test))}</td>
-                    <td>
-                      <button
-                        className="btn btn-info btn-sm me-2"
-                        onClick={() => handleViewTest(test)}
-                      >
-                        <RiEyeLine />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    No tests found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <nav>
-          <ul className="pagination justify-content-center">
-            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage((p) => p - 1)}>
-                Previous
-              </button>
-            </li>
-            {[...Array(totalPages)].map((_, idx) => (
-              <li
-                key={idx}
-                className={`page-item ${currentPage === idx + 1 ? "active" : ""}`}
-              >
-                <button className="page-link" onClick={() => setCurrentPage(idx + 1)}>
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-              <button className="page-link" onClick={() => setCurrentPage((p) => p + 1)}>
-                Next
-              </button>
-            </li>
-          </ul>
-        </nav>
-
-        {/* Modal */}
-        <div className="modal fade" id="viewModal" tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Test Details</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+      <div className="grid grid-cols-1 gap-2">
+        {ranges.map((range, idx) => (
+          <div
+            key={idx}
+            className={`bg-gradient-to-r from-blue-50/50 to-cyan-50/50 border border-blue-200 rounded-xl p-3 hover:border-blue-300 transition-all duration-200 ${
+              compact ? "text-sm" : ""
+            }`}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+              {/* Gender */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-blue-700 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  className="w-full px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200"
+                  value={range.gender}
+                  onChange={(e) => onChange(idx, e)}
+                >
+                  <option className="text-gray-700">Male</option>
+                  <option className="text-gray-700">Female</option>
+                  <option className="text-gray-700">Any</option>
+                </select>
               </div>
-              <div className="modal-body">
-                {selectedTest ? (
-                  <div>
-                    <h5>{selectedTest.name}</h5>
-                    <p><strong>Unit:</strong> {selectedTest.lab_unit_name || "---"}</p>
-                    <p><strong>Price:</strong> ₦{formatPrice(calculatePrice(selectedTest))}</p>
 
-                    <h6 className="mt-3">Subtests:</h6>
-                    {selectedTest.sub_tests?.length > 0 ? (
-                      <ul className="list-group mb-3">
-                        {selectedTest.sub_tests.map((st, idx) => (
-                          <li key={idx} className="list-group-item d-flex justify-content-between">
-                            <span>{st.parameter_name}</span>
-                            <span className="fw-bold">
-                              ₦{formatPrice((parseFloat(st.price) || 0).toFixed(2))}
-                            </span>
-                          </li>
-                        ))}
-                        {/* Total Row */}
-                        {selectedTest.sub_tests.length > 0 && (
-                            <li className="list-group-item d-flex justify-content-between bg-light fw-bold">
-                                <span>Total</span>
-                                <span>
-                                    ₦{formatPrice(selectedTest.sub_tests
-                                        .reduce((sum, st) => sum + (parseFloat(st.price) || 0), 0)
-                                        .toFixed(2))}
-                                </span>
-                            </li>
-                        )}
-                      </ul>
-                    ) : (
-                      <p>--- No Subtests ---</p>
-                    )}
-                  </div>
-                ) : (
-                  <p>No test selected</p>
-                )}
+              {/* Age Min */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-blue-700">Age Min</label>
+                <input
+                  type="text"
+                  name="ageMin"
+                  className="w-full px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200"
+                  value={range.ageMin}
+                  onChange={(e) => onChange(idx, e)}
+                  placeholder="0"
+                />
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                  Close
+
+              {/* Age Max */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-blue-700">Age Max</label>
+                <input
+                  type="text"
+                  name="ageMax"
+                  className="w-full px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200"
+                  value={range.ageMax}
+                  onChange={(e) => onChange(idx, e)}
+                  placeholder="100"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-blue-700">Category</label>
+                <select
+                  name="category"
+                  className="w-full px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200"
+                  value={range.category}
+                  onChange={(e) => onChange(idx, e)}
+                >
+                  <option className="text-gray-700">Adult</option>
+                  <option className="text-gray-700">Child</option>
+                  <option className="text-gray-700">Any</option>
+                </select>
+              </div>
+
+              {/* Range Value */}
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-blue-700">Range Value</label>
+                <input
+                  type="text"
+                  name="rangeValue"
+                  className="w-full px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200"
+                  placeholder="30-45"
+                  value={range.rangeValue}
+                  onChange={(e) => onChange(idx, e)}
+                />
+              </div>
+
+              {/* Remove Button */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(idx)}
+                  className="w-full px-3 py-1.5 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 hover:border-red-300 hover:text-red-700 transition-all duration-200 flex items-center justify-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Remove
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      {/* </div> */}
-    {/* </div> */}
-    </>
+        ))}
+      </div>
+    </div>
   );
 };
 
+/* ---------------------------
+   SubTestForm - Beautiful Card Design
+   --------------------------- */
+const SubTestForm = ({ sub, idx, onUpdateSub, onRemoveSub, onAddRange, onUpdateRange, onRemoveRange }) => {
+  return (
+    <div className="relative bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
+      {/* Decorative Side Border */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-cyan-500"></div>
+      
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
+            <div>
+              <h6 className="font-bold text-gray-900">Sub-Test {idx + 1}</h6>
+              <p className="text-sm text-gray-500">Configure individual test parameters</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onRemoveSub(idx)}
+            className="px-3 py-1.5 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 hover:border-red-300 hover:text-red-700 transition-all duration-200 flex items-center gap-1 text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Remove
+          </button>
+        </div>
 
+        {/* Sub-Test Details */}
+        <div className="grid grid-cols-3 gap-1 mb-2">
+          <div>
+            <label className="text-xs text-gray-700">Parameter</label>
+            <input
+              type="text"
+              name="parameterName"
+              className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+              value={sub.parameterName}
+              onChange={(e) => onUpdateSub(idx, e)}
+              required
+              placeholder="e.g., PCV"
+              size="10"
+            />
+          </div>
 
-// Your original component for creating a test
+          <div>
+            <label className="text-xs text-gray-700">Unit</label>
+            <input
+              type="text"
+              name="siUnit"
+              className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+              value={sub.siUnit}
+              onChange={(e) => onUpdateSub(idx, e)}
+              placeholder="%"
+              size="5"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-700">Price (₦)</label>
+            <input
+              type="number"
+              name="price"
+              step="0.01"
+              className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+              value={sub.price}
+              onChange={(e) => onUpdateSub(idx, e)}
+              placeholder="0.00"
+              size="8"
+            />
+          </div>
+        </div>
+
+        {/* Reference Ranges for Sub-Test */}
+        <div className="mt-4 pt-4 border-t border-blue-100">
+          <ReferenceRangeForm
+            ranges={sub.referenceRanges}
+            onAdd={() => onAddRange(idx)}
+            onChange={(rangeIdx, e) => onUpdateRange(idx, rangeIdx, e)}
+            onRemove={(rangeIdx) => onRemoveRange(idx, rangeIdx)}
+            compact
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---------------------------
+   Main CreateLabTest Component
+   --------------------------- */
 const CreateLabTest = () => {
-    const [labUnits, setLabUnits] = useState([]);
-    const { showMessage } = useMessage();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const { pid } = useParams();
-    const {user} = useAuth()
-    const [test, setTest] = useState({
-      name: "",
-      isComplex: false,
-      siUnit: "",
-      labUnit: "",
-      price: 0,
-      isActive: true,
-      remark: "",
-      requiresRemark: false,
-      requiresReferenceRange: true,
-    });
-    const [subTests, setSubTests] = useState([]);
-    const [referenceRanges, setReferenceRanges] = useState([
-      { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" },
+  const [labUnits, setLabUnits] = useState([]);
+  const { showMessage } = useMessage();
+  const [loading, setLoading] = useState(false);
+  const { pid } = useParams();
+  const { user } = useAuth();
+
+  const [test, setTest] = useState({
+    name: "",
+    isComplex: false,
+    siUnit: "",
+    labUnit: "",
+    price: 0,
+    isActive: true,
+    remark: "",
+    requiresRemark: false,
+    requiresReferenceRange: true,
+  });
+
+  const [subTests, setSubTests] = useState([]);
+  const [referenceRanges, setReferenceRanges] = useState([
+    { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" },
+  ]);
+
+  useEffect(() => {
+    axiosInstance
+      .get("/labapi/lab-units/")
+      .then((res) => setLabUnits(res.data || []))
+      .catch((err) => console.error("Error fetching Lab Units!", err));
+  }, []);
+
+  /* --- Main test inputs --- */
+  const handleTestChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setTest((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : type === "number" ? parseFloat(value) || 0 : value,
+    }));
+  };
+
+  /* -----------------------------
+     Sub-tests helpers
+     ----------------------------- */
+  const addSubTest = () =>
+    setSubTests((prev) => [
+      ...prev,
+      { parameterName: "", siUnit: "", price: 0, referenceRanges: [{ gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" }] },
     ]);
-    // const [message, setMessage] = useState("");
-  
-    useEffect(() => {
-        // Fetch Lab Units data from the backend API
-        axiosInstance.get('/labapi/lab-units/')   
-            .then(response => {
-                setLabUnits(response.data)
-                // setLoading(false)
-            })
-            .catch(error => {
-                console.error("There was an error fetching the Lab Units!", error)
-                // setLoading(false)
-            })  
-    }, [])
-  
-    const handleTestChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      let newValue;
-  
-      if (type === "checkbox") {
-        newValue = checked;
-      } else if (type === "number") {
-        newValue = parseFloat(value) || 0; // Default to 0 if parsing fails
-      } else {
-        newValue = value;
-      }
-  
-      setTest((prevTest) => ({
-        ...prevTest,
-        [name]: newValue,
-      }));
+
+  const updateSubTest = (index, e) => {
+    const { name, value, type } = e.target;
+    setSubTests((prev) => prev.map((s, i) => (i === index ? { ...s, [name]: type === "number" ? parseFloat(value) || 0 : value } : s)));
+  };
+
+  const removeSubTest = (index) => setSubTests((prev) => prev.filter((_, i) => i !== index));
+
+  const addSubTestRange = (subIndex) =>
+    setSubTests((prev) =>
+      prev.map((s, i) => (i === subIndex ? { ...s, referenceRanges: [...s.referenceRanges, { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" }] } : s))
+    );
+
+  const updateSubTestRange = (subIndex, rangeIndex, e) => {
+    const { name, value } = e.target;
+    setSubTests((prev) =>
+      prev.map((s, i) =>
+        i === subIndex ? { ...s, referenceRanges: s.referenceRanges.map((r, j) => (j === rangeIndex ? { ...r, [name]: value } : r)) } : s
+      )
+    );
+  };
+
+  const removeSubTestRange = (subIndex, rangeIndex) =>
+    setSubTests((prev) => prev.map((s, i) => (i === subIndex ? { ...s, referenceRanges: s.referenceRanges.filter((_, j) => j !== rangeIndex) } : s)));
+
+  /* --- Top-level reference ranges --- */
+  const addReferenceRange = () => setReferenceRanges((prev) => [...prev, { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" }]);
+
+  const updateReferenceRange = (index, e) => {
+    const { name, value } = e.target;
+    setReferenceRanges((prev) => prev.map((r, i) => (i === index ? { ...r, [name]: value } : r)));
+  };
+
+  const removeReferenceRange = (index) => setReferenceRanges((prev) => prev.filter((_, i) => i !== index));
+
+  /* --- Submit --- */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formattedSubTests = subTests.map((sub) => ({
+      parameter_name: sub.parameterName,
+      si_unit: sub.siUnit,
+      price: sub.price,
+      reference_ranges: sub.referenceRanges.map((r) => ({
+        gender: r.gender,
+        age_min: r.ageMin,
+        age_max: r.ageMax,
+        category: r.category,
+        range_value: r.rangeValue,
+      })),
+    }));
+
+    const formattedReferenceRanges =
+      test.isComplex || !test.requiresReferenceRange
+        ? []
+        : referenceRanges.map((r) => ({
+            gender: r.gender,
+            age_min: r.ageMin,
+            age_max: r.ageMax,
+            category: r.category,
+            range_value: r.rangeValue,
+          }));
+
+    const payload = {
+      name: test.name,
+      is_complex: test.isComplex,
+      si_unit: test.siUnit,
+      lab_unit: test.labUnit,
+      price: test.price,
+      is_active: test.isActive,
+      remark: test.remark,
+      requires_remark: test.requiresRemark,
+      requires_reference_range: test.requiresReferenceRange,
+      sub_tests: formattedSubTests,
+      reference_ranges: formattedReferenceRanges,
     };
-  
-    // Adds a new sub-test to the state
-    const handleAddSubTest = () => {
-      setSubTests((prev) => [
-        ...prev,
-        {
-          parameterName: "",
-          siUnit: "",
-          price: 0, // Add price field for sub-test
-          referenceRanges: [ // Each sub-test now has its own reference ranges
-            { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" }
-          ],
-        },
-      ]);
-    };
-  
-    // Handles changes within a specific sub-test
-    const handleSubTestChange = (index, e) => {
-      const { name, value, type } = e.target;
-      const updatedSubTests = [...subTests];
-      let newValue = value;
-      if (type === 'number') {
-          newValue = parseFloat(value) || 0;
-      }
-      updatedSubTests[index] = { ...updatedSubTests[index], [name]: newValue };
-      setSubTests(updatedSubTests);
-    };
-  
-    // Removes a sub-test from the list
-    const handleRemoveSubTest = (index) => {
-      setSubTests((prev) => prev.filter((_, i) => i !== index));
-    };
-    
-    // Adds a new reference range row for a specific sub-test
-    const handleAddSubTestReferenceRange = (subtestIndex) => {
-      const updatedSubTests = [...subTests];
-      updatedSubTests[subtestIndex].referenceRanges.push({
-        gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: ""
-      });
-      setSubTests(updatedSubTests);
-    };
-    
-    // Handles changes in a reference range for a specific sub-test
-    const handleSubTestReferenceRangeChange = (subtestIndex, rangeIndex, e) => {
-      const { name, value } = e.target;
-      const updatedSubTests = [...subTests];
-      updatedSubTests[subtestIndex].referenceRanges[rangeIndex] = {
-        ...updatedSubTests[subtestIndex].referenceRanges[rangeIndex],
-        [name]: value
-      };
-      setSubTests(updatedSubTests);
-    };
-  
-    // Removes a reference range from a specific sub-test
-    const handleRemoveSubTestReferenceRange = (subtestIndex, rangeIndex) => {
-      const updatedSubTests = [...subTests];
-      updatedSubTests[subtestIndex].referenceRanges = updatedSubTests[subtestIndex].referenceRanges.filter((_, i) => i !== rangeIndex);
-      setSubTests(updatedSubTests);
-    };
-  
-  
-    // Adds a new reference range for a non-complex test
-    const handleAddReferenceRange = () => {
-      setReferenceRanges((prev) => [
-        ...prev,
-        { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" },
-      ]);
-    };
-  
-    // Handles changes in the main reference ranges
-    const handleReferenceRangeChange = (index, e) => {
-      const { name, value } = e.target;
-      const updated = [...referenceRanges];
-      updated[index] = { ...updated[index], [name]: value };
-      setReferenceRanges(updated);
-    };
-  
-    // Removes a reference range for a non-complex test
-    const handleRemoveReferenceRange = (index) => {
-      setReferenceRanges((prev) => prev.filter((_, i) => i !== index));
-    };
-  
-    // Resets the form to its initial state
-    const resetForm = () => {
+
+    try {
+      setLoading(true);
+      await axiosInstance.post(`/labapi/tests/create/`, payload);
+      showMessage("Test created successfully!", "success");
+
+      // Reset form
       setTest({
         name: "",
         isComplex: false,
@@ -405,259 +375,223 @@ const CreateLabTest = () => {
         requiresReferenceRange: true,
       });
       setSubTests([]);
-      setReferenceRanges([
-        { gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" },
-      ]);
-    };
-  
-    // Handles form submission
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      
-  
-      // Format sub-tests for submission
-      const formattedSubTests = subTests.map((sub) => ({
-        parameter_name: sub.parameterName,
-        si_unit: sub.siUnit,
-        price: sub.price, 
-        reference_ranges: sub.referenceRanges.map(range => ({
-          gender: range.gender,
-          age_min: range.ageMin,
-          age_max: range.ageMax,
-          category: range.category,
-          range_value: range.rangeValue,
-        })),
-      }));
-  
-      const formattedReferenceRanges = (test.isComplex || !test.requiresReferenceRange) ? [] : referenceRanges.map((range) => ({
-      gender: range.gender,
-      age_min: range.ageMin,
-      age_max: range.ageMax,
-      category: range.category,
-      range_value: range.rangeValue,
-  }));
-  
-      const submissionData = {
-        name: test.name,
-        is_complex: test.isComplex,
-        si_unit: test.siUnit,
-        lab_unit: test.labUnit,
-        price: parseFloat(test.price),
-        is_active: test.isActive,
-        remark: test.remark,
-        requires_remark: test.requiresRemark,
-        requires_reference_range: test.requiresReferenceRange,
-        sub_tests: formattedSubTests,
-        reference_ranges: formattedReferenceRanges,
-      };
-      
-      console.log("Data to be sent:", submissionData);
-      setLoading(true);
-      
-      try {
-        const res = await axiosInstance.post(`/labapi/tests/create/`, {
-          name: test.name,
-          is_complex: test.isComplex,
-          si_unit: test.siUnit,
-          lab_unit: test.labUnit,
-          price: parseFloat(test.price),
-          is_active: test.isActive,
-          remark: test.remark,
-          requires_remark: test.requiresRemark,
-          requires_reference_range: test.requiresReferenceRange,
-          sub_tests: formattedSubTests,
-          reference_ranges: formattedReferenceRanges,
-        });
-        resetForm();
-  
-      showMessage("Test created successfully!", "success");
+      setReferenceRanges([{ gender: "Any", ageMin: "", ageMax: "", category: "Any", rangeValue: "" }]);
     } catch (err) {
       console.error("Error submitting test data:", err);
       showMessage("Error creating test.", "danger");
     } finally {
       setLoading(false);
     }
-    };
-    
-  
-    return (
-      <>
-        <h3 className="text-center mb-4">Create New Test</h3>
-        <form onSubmit={handleSubmit}>
-          {/* Main Test Fields */}
-          <div className="row g-3 mb-3">
-            <div className="col-md-3">
-              <label className="form-label">Test Name</label>
-              <input type="text" name="name" className="form-control" value={test.name} onChange={handleTestChange} required />
+  };
+
+  return (
+    <div className="p-1">
+      {/* Ultra Compact Header */}
+      <div className="mb-3">
+        <div className="flex items-center gap-1">
+          <div className="p-1 bg-blue-100 rounded">
+            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <h1 className="text-base font-bold text-gray-900">New Lab Test</h1>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Test Details - Compact */}
+        <div className="bg-white border border-blue-200 rounded p-2">
+          <div className="flex items-center gap-1 mb-2">
+            <div className="p-1 bg-blue-100 rounded">
+              <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <div className="col-md-3">
-              <label className="form-label">SI Unit</label>
-              <input type="text" name="siUnit" className="form-control" value={test.siUnit} onChange={handleTestChange} />
+            <span className="text-sm font-medium text-gray-900">Test Details</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-1">
+            <div className="md:col-span-2">
+              <label className="text-xs text-gray-700">Test Name</label>
+              <input
+                name="name"
+                value={test.name}
+                onChange={handleTestChange}
+                type="text"
+                className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+                required
+                placeholder="e.g., FBC"
+              />
             </div>
-            <div className="col-md-3">
-              <label className="form-label">Lab Unit</label>
-              <select name="labUnit" className="form-select" value={test.labUnit} onChange={handleTestChange} required>
-                <option value="">-- Select Lab Unit --</option>
-                {labUnits.map((unit) => (
-                  <option key={unit.id} value={unit.id}>{unit.name}</option>
+
+            <div>
+              <label className="text-xs text-gray-700">SI Unit</label>
+              <input
+                name="siUnit"
+                value={test.siUnit}
+                onChange={handleTestChange}
+                type="text"
+                className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+                placeholder="Unit"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-700">Lab Unit</label>
+              <select
+                name="labUnit"
+                value={test.labUnit}
+                onChange={handleTestChange}
+                className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+                required
+              >
+                <option value="" className="text-xs">Select</option>
+                {labUnits.map((u) => (
+                  <option key={u.id} value={u.id} className="text-xs">
+                    {u.name}
+                  </option>
                 ))}
               </select>
             </div>
-            {!test.isComplex &&(
-              <div className="col-md-3">
-                <label className="form-label">Price ₦</label>
-                <input type="number" name="price" step="0.01" className="form-control" value={test.price} onChange={handleTestChange} />
+
+            {!test.isComplex && (
+              <div>
+                <label className="text-xs text-gray-700">Price (₦)</label>
+                <input
+                  name="price"
+                  value={test.price}
+                  onChange={handleTestChange}
+                  type="number"
+                  step="0.01"
+                  className="w-full text-xs px-2 py-1 bg-white border border-blue-200 rounded"
+                  placeholder="0.00"
+                />
               </div>
             )}
           </div>
+        </div>
 
-          {/* Checkboxes */}
-          <div className="row g-3 mb-3 form-check form-switch d-flex">
+        {/* Options - Ultra Compact */}
+        <div className="bg-white border border-cyan-200 rounded p-2">
+          <div className="flex items-center gap-1 mb-2">
+            <div className="p-1 bg-cyan-100 rounded">
+              <svg className="w-3 h-3 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-gray-900">Configuration</span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
             {[
-              { label: "Complex Test", name: "isComplex" },
-              { label: "Requires Range", name: "requiresReferenceRange" },
-              { label: "Requires Remark", name: "requiresRemark" },
-              { label: "Is Active", name: "isActive" },
-            ].map((cb) => (
-              <div key={cb.name} className="col-md-2 form-check">
-                <input type="checkbox" className="form-check-input" name={cb.name} id={cb.name} checked={test[cb.name]} onChange={handleTestChange} />
-                <label className="form-check-label" htmlFor={cb.name}>{cb.label}</label>
-              </div>
+              { label: "Complex", name: "isComplex" },
+              { label: "Ref Range", name: "requiresReferenceRange" },
+              { label: "Remark", name: "requiresRemark" },
+              { label: "Active", name: "isActive", default: true },
+            ].map((option) => (
+              <label key={option.name} className="flex items-center gap-1 cursor-pointer">
+                <input
+                  name={option.name}
+                  checked={test[option.name]}
+                  onChange={handleTestChange}
+                  type="checkbox"
+                  className="w-3 h-3 text-blue-600 border-gray-300 rounded"
+                />
+                <span className="text-xs text-gray-700">{option.label}</span>
+              </label>
             ))}
           </div>
-
-          {/* Sub-Tests section (only for complex tests) */}
-          {test.isComplex && (
-            <div className="mb-4 p-3 border rounded bg-light">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5>Sub-Tests</h5>
-                <button type="button" className="btn btn-primary btn-sm" onClick={handleAddSubTest}>Add Sub-Test</button>
-              </div>
-              {subTests.map((sub, idx) => (
-                <div key={idx} className="p-3 mb-3 border rounded">
-                  <div className="row g-3 align-items-end mb-3">
-                    <div className="col-md-3">
-                      <label className="form-label">Parameter Name</label>
-                      <input type="text" name="parameterName" className="form-control" value={sub.parameterName} onChange={(e) => handleSubTestChange(idx, e)} required />
-                    </div>
-                    <div className="col-md-3">
-                      <label className="form-label">SI Unit</label>
-                      <input type="text" name="siUnit" className="form-control" value={sub.siUnit} onChange={(e) => handleSubTestChange(idx, e)} />
-                    </div>
-                    <div className="col-md-3">
-                      <label className="form-label">Price ₦</label>
-                      <input type="number" name="price" step="0.01" className="form-control" value={sub.price} onChange={(e) => handleSubTestChange(idx, e)} />
-                    </div>
-                    <div className="col-auto">
-                      <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveSubTest(idx)}>Remove Sub-Test</button>
-                    </div>
-                  </div>
-                  
-                  {/* Reference Ranges for each Sub-Test */}
-                  <div className="mt-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                          <h6>Reference Ranges for {sub.parameterName || 'Sub-Test'}</h6>
-                          <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => handleAddSubTestReferenceRange(idx)}>Add Range</button>
-                      </div>
-                      {sub.referenceRanges.map((range, rangeIdx) => (
-                          <div key={rangeIdx} className="row g-2 align-items-end mb-2">
-                              <div className="col">
-                                  <label className="form-label-sm">Gender</label>
-                                  <select name="gender" className="form-select form-select-sm" value={range.gender} onChange={(e) => handleSubTestReferenceRangeChange(idx, rangeIdx, e)}>
-                                      <option>Male</option><option>Female</option><option>Any</option>
-                                  </select>
-                              </div>
-                              <div className="col"><label className="form-label-sm">Age Min</label><input type="text" name="ageMin" className="form-control form-control-sm" value={range.ageMin} onChange={(e) => handleSubTestReferenceRangeChange(idx, rangeIdx, e)}/></div>
-                              <div className="col"><label className="form-label-sm">Age Max</label><input type="text" name="ageMax" className="form-control form-control-sm" value={range.ageMax} onChange={(e) => handleSubTestReferenceRangeChange(idx, rangeIdx, e)}/></div>
-                              <div className="col">
-                                  <label className="form-label-sm">Category</label>
-                                  <select name="category" className="form-select form-select-sm" value={range.category} onChange={(e) => handleSubTestReferenceRangeChange(idx, rangeIdx, e)}>
-                                      <option>Adult</option><option>Child</option><option>Any</option>
-                                  </select>
-                              </div>
-                              <div className="col"><label className="form-label-sm">Range Value</label><input type="text" name="rangeValue" className="form-control form-control-sm" value={range.rangeValue} onChange={(e) => handleSubTestReferenceRangeChange(idx, rangeIdx, e)}/></div>
-                              <div className="col-auto"><button type="button" className="btn btn-outline-danger btn-sm" onClick={() => handleRemoveSubTestReferenceRange(idx, rangeIdx)}>X</button></div>
-                          </div>
-                      ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Reference Ranges section (only for non-complex tests) */}
-          {!test.isComplex && test.requiresReferenceRange && (
-            <div className="mb-4">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <h5>Reference Ranges</h5>
-                <button type="button" className="btn btn-primary btn-sm" onClick={handleAddReferenceRange}>Add Range</button>
-              </div>
-              {referenceRanges.map((range, idx) => (
-                <div key={idx} className="row g-3 align-items-end mb-2">
-                  <div className="col-md-2"><label className="form-label">Gender</label><select name="gender" className="form-select" value={range.gender} onChange={(e) => handleReferenceRangeChange(idx, e)}><option>Male</option><option>Female</option><option>Any</option></select></div>
-                  <div className="col-md-2"><label className="form-label">Age Min</label><input type="text" name="ageMin" className="form-control" value={range.ageMin} onChange={(e) => handleReferenceRangeChange(idx, e)}/></div>
-                  <div className="col-md-2"><label className="form-label">Age Max</label><input type="text" name="ageMax" className="form-control" value={range.ageMax} onChange={(e) => handleReferenceRangeChange(idx, e)}/></div>
-                  <div className="col-md-2"><label className="form-label">Category</label><select name="category" className="form-select" value={range.category} onChange={(e) => handleReferenceRangeChange(idx, e)}><option>Adult</option><option>Child</option><option>Any</option></select></div>
-                  <div className="col-md-2"><label className="form-label">Range Value</label><input type="text" name="rangeValue" className="form-control" value={range.rangeValue} onChange={(e) => handleReferenceRangeChange(idx, e)}/></div>
-                  <div className="col-auto"><button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveReferenceRange(idx)}>Remove</button></div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          <div className="text-center">
-            <button type="submit" className="btn btn-success px-4">Submit Test</button>
-          </div>
-        </form>
-      </>
-    );
-};
-
-
-// New Parent Component to manage tabs
-const LabTestManager = () => {
-    const [activeTab, setActiveTab] = useState("create"); // 'create' or 'view'
-
-    return (
-      <div className="row gx-4">
-        <div className="col-xl-12">
-          <div className="card">
-            <div className="card-body">
-              <div className="custom-tabs-container">
-                  <ul className="nav nav-tabs" id="customTab2" role="tablist">
-                      <li className="nav-item" role="presentation">
-                          <a 
-                              className={`nav-link ${activeTab === 'create' ? 'active' : ''}`} 
-                              onClick={() => setActiveTab('create')}
-                              id="tab-oneA" data-bs-toggle="tab" role="tab"
-                              aria-controls="oneA" aria-selected="true"
-                          >
-                             <i class="ri-temp-cold-line"></i> Create Test
-                          </a>
-                      </li>
-                      <li className="nav-item">
-                        <a 
-                            className={`nav-link ${activeTab === 'view' ? 'active' : ''}`} 
-                            onClick={() => setActiveTab('view')}
-                            id="tab-twoA" data-bs-toggle="tab" role="tab"
-                            aria-controls="twoA" aria-selected="true"
-                        >
-                            <i class="ri-menu-unfold-fill"></i>View Tests
-                        </a>
-                      </li>
-                  </ul>
-
-                  {/* Tab Content */}
-                  <div>
-                      {activeTab === 'create' && <CreateLabTest />}
-                      {/* {activeTab === 'view' && <ViewTests />} */}
-                  </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-    );
+
+        {/* Sub-Tests - Compact */}
+        {test.isComplex && (
+          <div className="bg-white border border-indigo-200 rounded p-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1">
+                <div className="p-1 bg-indigo-100 rounded">
+                  <svg className="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-gray-900">Sub-Tests</span>
+              </div>
+              <button
+                type="button"
+                onClick={addSubTest}
+                className="px-2 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs rounded"
+              >
+                + Add
+              </button>
+            </div>
+
+            {subTests.length === 0 ? (
+              <div className="text-center py-2 text-xs text-gray-500 border border-dashed border-indigo-200 rounded">
+                No sub-tests
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {subTests.map((s, idx) => (
+                  <SubTestForm
+                    key={idx}
+                    sub={s}
+                    idx={idx}
+                    onUpdateSub={updateSubTest}
+                    onRemoveSub={removeSubTest}
+                    onAddRange={addSubTestRange}
+                    onUpdateRange={updateSubTestRange}
+                    onRemoveRange={removeSubTestRange}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Reference Ranges - Compact */}
+        {!test.isComplex && test.requiresReferenceRange && (
+          <div className="bg-white border border-blue-200 rounded p-2">
+            <div className="flex items-center gap-1 mb-2">
+              <div className="p-1 bg-blue-100 rounded">
+                <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium text-gray-900">Reference Ranges</span>
+            </div>
+            <ReferenceRangeForm
+              ranges={referenceRanges}
+              onAdd={addReferenceRange}
+              onChange={updateReferenceRange}
+              onRemove={removeReferenceRange}
+            />
+          </div>
+        )}
+
+        {/* Submit Button - Compact */}
+        <div className="flex justify-end pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Creating...
+              </>
+            ) : (
+              <>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Create Test
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
-export default LabTestManager;
+export default CreateLabTest;

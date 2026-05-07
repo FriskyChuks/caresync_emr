@@ -2,83 +2,326 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CareSync</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Meta -->
-  <meta name="description" content="Marketplace for Bootstrap Admin Dashboards" />
-  <meta property="og:title" content="Admin Templates - Dashboard Templates" />
-  <meta property="og:description" content="Marketplace for Bootstrap Admin Dashboards" />
-  <meta property="og:type" content="website" />
+  <!-- Primary Meta Tags -->
+  <title>CareSync EMR | Modern Electronic Medical Records System</title>
+  <meta name="description"
+    content="CareSync EMR - Modern Electronic Medical Records software for hospitals and clinics. Streamline patient management, appointments, billing, and healthcare workflows.">
+  <meta name="keywords"
+    content="EMR, Electronic Medical Records, Healthcare Software, Hospital Management, Patient Management, Medical Software, Nigeria Healthcare">
+  <meta name="author" content="CareSync by FriskyTech">
+  <meta name="robots" content="index, follow">
 
-  <!-- Favicon -->
-  <link rel="shortcut icon" href="/assets/images/caresync_logo.png" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://caresync.friskytech.com.ng/">
+  <meta property="og:title" content="CareSync EMR | Modern Electronic Medical Records System">
+  <meta property="og:description"
+    content="Modern Electronic Medical Records system for hospitals and clinics. Streamline healthcare management with CareSync.">
+  <meta property="og:image" content="https://caresync.friskytech.com.ng/caresync_logo.PNG">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="CareSync EMR">
 
-  <!-- ========== Core CSS ========== -->
-  <link rel="stylesheet" href="/assets/fonts/remix/remixicon.css" />
-  <link rel="stylesheet" href="/assets/css/main.min.css" />
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://caresync.friskytech.com.ng/">
+  <meta property="twitter:title" content="CareSync EMR | Modern Electronic Medical Records System">
+  <meta property="twitter:description"
+    content="Modern Electronic Medical Records system for hospitals and clinics. Streamline healthcare management with CareSync.">
+  <meta property="twitter:image" content="https://caresync.friskytech.com.ng/caresync_logo.PNG">
 
-  <!-- ========== Vendor CSS ========== -->
-  <link rel="stylesheet" href="/assets/vendor/overlay-scroll/OverlayScrollbars.min.css" />
-  <link rel="stylesheet" href="/assets/vendor/daterange/daterange.css" />
-  <link rel="stylesheet" href="/assets/vendor/jquery-ui/jquery-ui.min.css" />
-  <link rel="stylesheet" href="/assets/vendor/datatables/dataTables.bs5.css" />
-  <link rel="stylesheet" href="/assets/vendor/datatables/dataTables.bs5-custom.css" />
-  <link rel="stylesheet" href="/assets/vendor/datatables/buttons/dataTables.bs5-custom.css" />
+  <!-- ========== FAVICON CONFIGURATION ========== -->
+  <!-- Most important: Basic favicon for all browsers -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+  <!-- PNG favicons for modern browsers -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+  <!-- Apple Touch Icon (for iOS devices) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Android Chrome Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#0ea5e9">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+
+  <!-- Safari Pinned Tab -->
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0ea5e9">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Theme Colors -->
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- ========== END FAVICON CONFIGURATION ========== -->
+
+  <!-- DNS Prefetch & Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://backend-caresync.friskytech.com.ng">
+
+  <!-- PWA Configuration -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CareSync">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="CareSync">
+  
+  <!-- Display optimization -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- iOS specific -->
+  <link rel="apple-touch-startup-image" href="/apple-launch-2048x2732.png"
+    media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="/apple-launch-1668x2388.png"
+    media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="/apple-launch-1536x2048.png"
+    media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Critical CSS -->
+  <style>
+    /* Critical: Loading fallback styles */
+    #loading-fallback {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+        'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: #f8fafc;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Loading container */
+    .loading-container {
+      text-align: center;
+      padding: 2rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Logo in loading screen */
+    .loading-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0ea5e9;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 1.5rem auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Loading text */
+    .loading-text {
+      color: #334155;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .loading-subtext {
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Hide elements initially */
+    [hidden] {
+      display: none !important;
+    }
+
+    /* Logo fallback styles */
+    .logo-fallback {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      margin: 0 auto 1.5rem;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- React Mount Point -->
-  <div id="root"></div>
+  <!-- Loading Fallback -->
+  <div id="loading-fallback" role="status" aria-label="Loading CareSync EMR application">
+    <div class="loading-container">
+      <div class="loading-logo">
+        <img src="/caresync_logo.PNG" alt="CareSync EMR Logo" loading="eager" id="loading-logo">
+      </div>
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-text" id="loading-text">Loading CareSync EMR...</p>
+      <p class="loading-subtext" id="loading-subtext">Modern Healthcare Management System</p>
+    </div>
+  </div>
 
-  <!-- Core Vendor JS -->
-  <script src="/assets/js/jquery.min.js"></script>
-  <script src="/assets/js/bootstrap.bundle.min.js"></script>
-  <script src="/assets/js/moment.min.js"></script>
+  <!-- Main App Container -->
+  <div id="root" hidden></div>
 
-  <!-- jQuery Plugins -->
-  <script src="/assets/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
-  <script src="/assets/vendor/overlay-scroll/custom-scrollbar.js"></script>
-  <script src="/assets/vendor/daterange/daterange.js"></script>
-  <script src="/assets/vendor/daterange/custom-daterange.js"></script>
-  <script src="/assets/vendor/jquery-ui/jquery-ui.min.js"></script>
-  <script src="/assets/vendor/jquery-ui/custom.js"></script>
+  <!-- Main JavaScript Bundle -->
+  <script type="module" src="/src/main.jsx" defer></script>
 
-  <!-- ApexCharts -->
-  <!-- <script src="/assets/vendor/apex/apexcharts.min.js"></script>
-  <script src="/assets/vendor/apex/custom/chart-colors.js"></script>
-  <script src="/assets/vendor/apex/custom/home/patients.js"></script>
-  <script src="/assets/vendor/apex/custom/home/department-income.js"></script>
-  <script src="/assets/vendor/apex/custom/home/income.js"></script>
-  <script src="/assets/vendor/apex/custom/home/appointments-overview.js"></script> -->
-  <script src="/assets/vendor/apex/custom/home/sparklines.js"></script>
+  <!-- Loading Script -->
+  <script>
+    (function () {
+      'use strict';
 
-  <!-- DataTables -->
-  <script src="/assets/vendor/datatables/dataTables.min.js"></script>
-  <script src="/assets/vendor/datatables/dataTables.bootstrap.min.js"></script>
-  <script src="/assets/vendor/datatables/custom/custom-datatables.js"></script>
-
-  <!-- App Custom JS -->
-  <script src="/assets/js/custom.js"></script>
-
-  <!-- Delay Sidebar Init until React renders -->
-  <script type="module">
-    import '/src/main.jsx';
-
-    // Wait until React mounts and sidebar menu exists
-    const initSidebar = () => {
-      if (window.$ && $(".sidebar-menu").length) {
-        if ($.sidebarMenu) {
-          $.sidebarMenu($(".sidebar-menu"));
-        }
-      } else {
-        // Retry after short delay if menu not yet present
-        setTimeout(initSidebar, 200);
+      // Handle logo loading error
+      const loadingLogo = document.getElementById('loading-logo');
+      if (loadingLogo) {
+        loadingLogo.onerror = function () {
+          this.style.display = 'none';
+          const fallbackDiv = document.createElement('div');
+          fallbackDiv.className = 'logo-fallback';
+          fallbackDiv.textContent = 'CS';
+          this.parentElement.appendChild(fallbackDiv);
+        };
       }
-    };
 
-    initSidebar();
+      // DOM ready handler
+      document.addEventListener('DOMContentLoaded', function () {
+        const fallback = document.getElementById('loading-fallback');
+        const root = document.getElementById('root');
+        const loadingText = document.getElementById('loading-text');
+        const loadingSubtext = document.getElementById('loading-subtext');
+
+        // Show root element
+        if (root) {
+          root.removeAttribute('hidden');
+        }
+
+        // Hide fallback after main app loads
+        const hideFallback = function () {
+          if (fallback) {
+            setTimeout(function () {
+              fallback.style.opacity = '0';
+              setTimeout(function () {
+                fallback.style.display = 'none';
+              }, 300);
+            }, 200);
+          }
+        };
+
+        // Fallback timeout
+        const fallbackTimeout = setTimeout(function () {
+          if (loadingText) {
+            loadingText.textContent = 'Taking longer than expected...';
+          }
+          if (loadingSubtext) {
+            loadingSubtext.textContent = 'Please check your internet connection';
+          }
+          setTimeout(hideFallback, 3000);
+        }, 7000);
+
+        // Listen for React app mount
+        let appLoaded = false;
+
+        const observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if (root && root.children.length > 0 && !appLoaded) {
+              appLoaded = true;
+              clearTimeout(fallbackTimeout);
+              setTimeout(hideFallback, 500);
+              observer.disconnect();
+            }
+          });
+        });
+
+        if (root) {
+          observer.observe(root, {
+            childList: true,
+            subtree: true
+          });
+        }
+
+        // Check periodically
+        const checkInterval = setInterval(function () {
+          if (root && root.children.length > 0 && !appLoaded) {
+            appLoaded = true;
+            clearTimeout(fallbackTimeout);
+            clearInterval(checkInterval);
+            hideFallback();
+          }
+        }, 100);
+      });
+    })();
   </script>
 </body>
 

@@ -4,3 +4,6 @@ from .models import *
 
 admin.site.register(Visit)
 admin.site.register(EncounterRoute)
+admin.site.register(TransferRequest)
+admin.site.register(Discharge)
+admin.site.register(DischargeReason)

@@ -1,67 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import axiosInstance from '../../../api/axiosInstance';
+import { useMessage } from '../../../context/MessageProvider';
+import PrescriptionSheet from '../../pharmacy/PrescriptionSheet';
+import PrescriptionHistory from '../../pharmacy/PrescriptionHistory';
 
-const PatientPharmacy = () => {
-  const [search, setSearch] = useState("");
+const PatientPharmacy = ({ patient }) => {
+  const { showMessage } = useMessage();
+  const [activeSubTab, setActiveSubTab] = useState('new');
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const drugs = [
-    { name: "Paracetamol", qty: "20 tabs", date: "28/08/2024", status: "Dispensed" },
-    { name: "Amoxicillin", qty: "10 caps", date: "08/09/2024", status: "Pending" },
+  const subtabs = [
+    { id: 'new', label: 'New Rx', icon: '💊', gradient: 'from-green-500 to-emerald-500' },
+    { id: 'history', label: 'History', icon: '📜', gradient: 'from-blue-500 to-indigo-500' }
   ];
 
-  const filtered = drugs.filter(
-    (d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.date.includes(search) ||
-      d.status.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    if (patient?.id) {
+      fetchPrescriptions();
+    }
+  }, [patient]);
+
+  const fetchPrescriptions = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/pharmacyapi/prescriptions/?patient_id=${patient.id}`);
+      setPrescriptions(response.data);
+    } catch (error) {
+      console.error('Error fetching prescriptions:', error);
+      showMessage('Error loading prescription history', 'danger');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePrescriptionSuccess = () => {
+    fetchPrescriptions();
+    setActiveSubTab('history');
+    showMessage('Prescription created successfully!', 'success');
+  };
+
+  if (!patient) {
+    return (
+      <div className="text-center py-4">
+        <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center mb-2">
+          <span className="text-xl">👤</span>
+        </div>
+        <p className="text-gray-500 text-sm">No patient data available</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="card shadow-sm border-0 mb-4">
-      <div className="card-header bg-white d-flex justify-content-between align-items-center border-0">
-        <h5 className="mb-0 fw-bold">Pharmacy</h5>
-        <button 
-          className="btn btn-sm btn-primary d-flex align-items-center"
-        >
-          <i className="ri-add-line me-1"></i> New Pharmacy Request
-        </button>
-        <input
-          type="text"
-          placeholder="Search drugs..."
-          className="form-control form-control-sm w-25"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-      <div className="card-body">
-        <table className="table table-hover align-middle">
-          <thead className="table-light">
-            <tr>
-              <th>Date</th>
-              <th>Drug</th>
-              <th>Quantity</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((d, idx) => (
-              <tr key={idx}>
-                <td>{d.date}</td>
-                <td>{d.name}</td>
-                <td>{d.qty}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      d.status === "Dispensed" ? "bg-success" : "bg-warning"
-                    }`}
-                  >
-                    {d.status}
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Beautiful Header */}
+      <div className="px-4 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
+              <span className="text-white text-lg">💊</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Pharmacy Management</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-white/80">
+                  {patient?.user_info?.first_name} {patient?.user_info?.last_name}
+                </span>
+                {patient.id && (
+                  <span className="px-1.5 py-0.5 bg-white/20 text-white text-[10px] rounded">
+                    PID: {patient.id}
                   </span>
-                </td>
-              </tr>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Compact Tabs */}
+          <div className="flex rounded-lg bg-white/10 backdrop-blur-sm p-0.5">
+            {subtabs.map(tab => (
+              <button
+                key={tab.id}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                  activeSubTab === tab.id 
+                    ? `bg-gradient-to-r ${tab.gradient} text-white shadow-sm` 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+                onClick={() => setActiveSubTab(tab.id)}
+              >
+                <span className="mr-1.5">{tab.icon}</span>
+                {tab.label}
+              </button>
             ))}
-          </tbody>
-        </table>
-        {filtered.length === 0 && <p className="text-muted">No records found.</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        {activeSubTab === 'new' && (
+          <PrescriptionSheet 
+            patient={patient}
+            onPrescriptionSuccess={handlePrescriptionSuccess}
+          />
+        )}
+        
+        {activeSubTab === 'history' && (
+          <PrescriptionHistory 
+            prescriptions={prescriptions}
+            loading={loading}
+            onRefresh={fetchPrescriptions}
+            patient={patient}
+          />
+        )}
       </div>
     </div>
   );

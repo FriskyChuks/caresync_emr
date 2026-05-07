@@ -60,7 +60,7 @@ class NextOfKin(models.Model):
     full_names = models.CharField(max_length=50)
     phone_no = models.CharField(max_length=15) 
     address = models.CharField(max_length=150)
-    email = models.EmailField()  
+    email = models.EmailField(blank=True, null=True)  
 
     def __str__(self):
         return f"{self.user} | {self.full_names} ({self.phone_no})"

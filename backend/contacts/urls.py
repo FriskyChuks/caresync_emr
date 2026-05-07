@@ -1,18 +1,5 @@
 from django.urls import path
-from .views import (
-
-    ContinentListCreateView,
-    ContinentDetailView,
-    CountryListCreateView,
-    CountryDetailView,
-    StateListCreateView,
-    StateDetailView,
-    LGAListCreateView,
-    LGADetailView,
-    ResidentialAddressListCreateView, ResidentialAddressDetailView,
-    PermanentAddressListCreateView, PermanentAddressDetailView,
-    NextOfKinListCreateView, NextOfKinDetailView,
-)
+from .views import *
 
 urlpatterns = [
     # Continents
@@ -42,4 +29,9 @@ urlpatterns = [
     # Next of Kin
     path("next-of-kin/", NextOfKinListCreateView.as_view(), name="nextofkin-list"),
     path("next-of-kin/<int:pk>/", NextOfKinDetailView.as_view(), name="nextofkin-detail"),
+
+    # New URLs for patient updates
+    path('patient/residential-address/', PatientResidentialAddressView.as_view(), name='patient-residential-address'),
+    path('patient/permanent-address/', PatientPermanentAddressView.as_view(), name='patient-permanent-address'),
+    path('patient/next-of-kin/', PatientNextOfKinView.as_view(), name='patient-next-of-kin'),
 ]

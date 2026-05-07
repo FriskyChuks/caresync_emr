@@ -1,0 +1,22 @@
+🧩 Next Step Options:
+
+Add an optional print/preview modal showing generated bill details.
+
+Add a table of previously created bills for quick lookup.
+
+Link this to the CashierBilling screen (cashier can see new unpaid bills immediately).
+
+
+# PHARMACY DISPENSARY PROCESS
+1. Search patient (there's an existing patient search endpoint)
+2. Display all prescriptions pertaining that patient (if any); they should be grouped into two tabs of pending and dispensed.
+   The tab defaults to the pending prescriptions. If no previous prescription, indicate with a message
+3. Sort prescription in the reverse order, last in on top
+4. NOTE: Doctors prescribe generics, so when the dispensary window opens, the prescribed items are seen in their generic names.
+5. Under each item, we have select brand dropdown(only brands pertaining to the item), a select batch dropdown (cascaded for the brand).
+6. Prices are tied to brand while quanties are tied to batch. Only batches with quantity are displayed with their various expry dates and quantities
+7. The items are billed, (billing has been built in the bills app, i'll show you). The dispensary button is disabled until after payment is made.
+   This means that the prescribed items would have status of pending, billed, paid, partly_billed, partly_paid dispensed, partly_dispensed
+   while the prescriptiondetails would have status of pending, billed, paid, dispensed.
+
+8. There are other parts to the pharmacy app, this just handles the dispensary process. 

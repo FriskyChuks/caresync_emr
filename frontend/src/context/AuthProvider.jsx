@@ -2,18 +2,11 @@ import React, { createContext, useState, useEffect, useCallback } from "react";
 import axiosInstance, { setupAxiosInterceptors } from "../api/axiosInstance";
 import axios from "axios";
 import { useIdleTimer, DEFAULT_IDLE_TIME, WARN_BEFORE } from "../hooks/useIdleTimer";
+import { AlertCircle, LogOut, Shield, Clock, CheckCircle } from "lucide-react";
 
 export const AuthContext = createContext(null);
 
-/**
- * AuthProvider
- * - hydrates user from localStorage on mount to avoid UI flashes
- * - wires axios interceptors once (setupAxiosInterceptors)
- * - centralizes idle detection + warning modal (uses useIdleTimer constants)
- * - exposes login/logout/fetchUser
- */
 export const AuthProvider = ({ children }) => {
-  // hydrate synchronously from localStorage to avoid null access in UI on refresh
   const [user, setUser] = useState(() => {
     try {
       const raw = localStorage.getItem("user");
@@ -24,7 +17,6 @@ export const AuthProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Set tokens helper
   const setTokens = (access, refresh) => {
     if (access) localStorage.setItem("access_token", access);
     if (refresh) localStorage.setItem("refresh_token", refresh);
@@ -37,13 +29,11 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // logout clears and redirects
   const logout = useCallback(() => {
     clearAuth();
-    window.location.assign("/");
+    window.location.assign("/auth/login");
   }, []);
 
-  // try refresh: uses plain axios to avoid recursive interceptors
   const tryRefreshAccessToken = useCallback(async () => {
     const refresh = localStorage.getItem("refresh_token");
     if (!refresh) return null;
@@ -65,7 +55,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // fetch user profile (with refresh fallback)
   const fetchUser = useCallback(async () => {
     try {
       const res = await axiosInstance.get("/auth/users/me/");
@@ -88,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [tryRefreshAccessToken]);
 
-  // login: get tokens then fetch user; return must_change_password if present
   const login = useCallback(
     async ({ username, password }) => {
       setLoading(true);
@@ -120,27 +108,21 @@ export const AuthProvider = ({ children }) => {
     [fetchUser]
   );
 
-  // set up axios interceptors once (pass logout & refresh helpers)
   useEffect(() => {
     setupAxiosInterceptors(logout, tryRefreshAccessToken);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logout, tryRefreshAccessToken]);
 
-  // useIdleTimer — central single source of truth (imported constants used by default)
   const { isWarning, remaining, resetTimer } = useIdleTimer({
     onIdle: () => logout(),
     idleTime: DEFAULT_IDLE_TIME,
     warnBefore: WARN_BEFORE,
   });
 
-  // helper when user clicks "Stay signed in"
   const handleStaySignedIn = async () => {
-    // attempt refresh; if refresh fails, logout will be triggered by fetch or interceptor
     await tryRefreshAccessToken();
     resetTimer();
   };
 
-  // hydrate/verify on app load
   useEffect(() => {
     (async () => {
       const access = localStorage.getItem("access_token");
@@ -155,52 +137,84 @@ export const AuthProvider = ({ children }) => {
     })();
   }, [fetchUser]);
 
-  // inline warning modal (minimal styling — replace with your modal if desired)
+  // Beautiful Tailwind Warning Modal
   const WarningModal = () => {
     if (!isWarning) return null;
+    
     return (
       <div
         role="dialog"
         aria-modal="true"
-        className="idle-warning-overlay"
-        style={{
-          position: "fixed",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999,
-          background: "rgba(0,0,0,0.35)",
-        }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       >
-        <div
-          className="card p-3"
-          style={{ maxWidth: 560, width: "94%", textAlign: "center", borderRadius: 8 }}
-        >
-          <h5 className="mb-2">You will be signed out soon</h5>
-          <p className="mb-3">
-            For your security, you will be signed out in <strong>{remaining}</strong> second
-            {remaining === 1 ? "" : "s"} due to inactivity.
-          </p>
-
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <button
-              className="btn btn-primary"
-              onClick={async () => {
-                await handleStaySignedIn();
-              }}
-            >
-              Stay signed in
-            </button>
-
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => {
-                logout();
-              }}
-            >
-              Log out now
-            </button>
+        <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 animate-fade-in">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-6">
+            <div className="flex items-center space-x-3">
+              <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Session Expiring</h3>
+                <p className="text-amber-100 text-sm">For your security</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Body */}
+          <div className="p-6">
+            <div className="flex items-start space-x-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-gray-700">
+                  You will be signed out in <span className="font-bold text-amber-600">{remaining}</span> second{remaining === 1 ? "" : "s"} due to inactivity.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  This ensures patient data security according to HIPAA guidelines.
+                </p>
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Time remaining</span>
+                <span>{remaining}s</span>
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-1000 ease-linear"
+                  style={{ width: `${(remaining / WARN_BEFORE) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={async () => {
+                  await handleStaySignedIn();
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg font-semibold hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <CheckCircle className="h-5 w-5" />
+                <span>Stay Signed In</span>
+              </button>
+              
+              <button
+                onClick={logout}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Log Out Now</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-center space-x-2">
+            <Shield className="h-4 w-4 text-primary-600" />
+            <span className="text-xs text-gray-500">HIPAA compliant session management</span>
           </div>
         </div>
       </div>
