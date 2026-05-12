@@ -119,7 +119,7 @@ const PatientOverview = ({ patient, vitals, loading }) => {
                 {patient.user_info?.fullname || `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || 'Patient'}
               </h2>
               <span className="flex-shrink-0 px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-gray-100 text-gray-600 text-[10px] sm:text-xs font-medium rounded">
-                #{patient.id}
+                {patient.patient_number}
               </span>
             </div>
             

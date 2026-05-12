@@ -67,7 +67,7 @@ const PharmacyLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Ultra Compact Header */}
-      <div className="rounded-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white shadow-md sticky top-0 z-50">
+      <div className="rounded-lg bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white shadow-md sticky top-0 z-20">
         <div className="container mx-auto px-2">
           <div className="flex items-center justify-between h-12">
             {/* Logo */}

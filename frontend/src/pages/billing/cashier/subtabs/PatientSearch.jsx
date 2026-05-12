@@ -37,8 +37,10 @@ const PatientSearch = ({ onSelect }) => {
   const handleSelect = (u) => {
     const patient = u.patient_data || {};
     const fullname = `${u.first_name || ""} ${u.last_name || ""} ${u.other_name || ""}`.trim();
+
     onSelect({
       id: patient.id,
+      patient_number: patient.patient_number,
       fullname,
       phone: patient.phone || "—",
       wallet_balance: Number(patient.wallet_balance ?? 0),
@@ -94,7 +96,7 @@ const PatientSearch = ({ onSelect }) => {
                       {fullname || "Unnamed"}
                     </div>
                     <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                      PID:{patient.id}
+                      PID:{patient.patient_number}
                     </span>
                   </div>
                   

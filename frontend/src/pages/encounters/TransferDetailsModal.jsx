@@ -12,7 +12,7 @@ const TransferDetailsModal = ({ show, onClose, data, type }) => {
     if (isRejected) {
       return {
         name: data?.user_info?.fullname || data?.user_info?.first_name + " " + data?.user_info?.last_name,
-        id: data?.id || data?.user_info?.id,
+        PID: data?.patient_number || data?.user_info?.id,
         avatarColor: "from-red-400 to-pink-500"
       };
     } else {
@@ -20,7 +20,7 @@ const TransferDetailsModal = ({ show, onClose, data, type }) => {
         name: data?.active_transfer?.patient?.fullname || 
                data?.user_info?.fullname || 
                data?.user_info?.first_name + " " + data?.user_info?.last_name,
-        id: data?.active_transfer?.patient?.id || data?.id,
+        PID: data?.active_transfer?.patient?.patient_number || data?.patient_number,
         avatarColor: isPending ? "from-amber-400 to-orange-500" : "from-blue-400 to-indigo-500"
       };
     }
@@ -113,7 +113,7 @@ const TransferDetailsModal = ({ show, onClose, data, type }) => {
                   <h4 className="font-bold text-gray-800">{patientInfo.name}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                      PID: {patientInfo.id}
+                      PID: {data?.patient_number || data?.user_info?.id}
                     </span>
                     <span className={`px-2 py-0.5 text-xs font-bold rounded ${
                       isRejected 

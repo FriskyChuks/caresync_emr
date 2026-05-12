@@ -41,9 +41,17 @@ class ReligionSerializer(serializers.ModelSerializer):
 
 
 class BasicPatientSerializer(serializers.ModelSerializer):
+    patient_number = serializers.CharField(read_only=True)
     class Meta:
         model = Patient
-        fields = ["id", "phone", "status", "date_of_birth", "age"]
+        fields = [
+            "id",
+            "patient_number",
+            "phone",
+            "status",
+            "date_of_birth",
+            "age"
+        ]
 
 
 class CustomUserCreateSerializer(serializers.ModelSerializer):
@@ -169,25 +177,44 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
+
     patient_profile = BasicPatientSerializer(read_only=True)
     user_category = UserCategorySerializer(read_only=True)
     gender = GenderSerializer(read_only=True)
-    
-    # NEW: Readable store and unit names
+
     pharmacy_store_name = serializers.SerializerMethodField(read_only=True)
     lab_unit_name = serializers.SerializerMethodField(read_only=True)
-    
-    # Also include the IDs for reference
+
     pharmacy_store_id = serializers.IntegerField(source='pharmacy_store.id', read_only=True)
     lab_unit_id = serializers.IntegerField(source='lab_unit.id', read_only=True)
+
+    # OPTIONAL: direct shortcut (flattened access for frontend convenience)
+    patient_number = serializers.CharField(source='patient_profile.patient_number', read_only=True)
 
     class Meta:
         model = CustomUser
         fields = [
-            "id", "username", "first_name", "last_name", "email", "gender",
-            "is_active", "is_staff","is_pharmacy_store_manager", "patient_profile", "user_category",
-            "pharmacy_store_id", "lab_unit_id", "pharmacy_store_name", "lab_unit_name",
-            "is_intern", "other_name"
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "gender",
+            "is_active",
+            "is_staff",
+            "is_pharmacy_store_manager",
+
+            "patient_profile",
+            "patient_number",   # 👈 NEW FLAT FIELD
+
+            "user_category",
+            "pharmacy_store_id",
+            "lab_unit_id",
+            "pharmacy_store_name",
+            "lab_unit_name",
+
+            "is_intern",
+            "other_name"
         ]
 
     def get_pharmacy_store_name(self, obj):
@@ -233,38 +260,62 @@ class UserCategoryAssignmentSerializer(serializers.ModelSerializer):
 
 # Updated: DetailedUserSerializer with readable names
 class DetailedUserSerializer(serializers.ModelSerializer):
+
     patient_profile = BasicPatientSerializer(read_only=True)
     user_category = UserCategorySerializer(read_only=True)
     gender = GenderSerializer(read_only=True)
-    
-    # Readable names
+
     pharmacy_store_name = serializers.SerializerMethodField(read_only=True)
     lab_unit_name = serializers.SerializerMethodField(read_only=True)
-    
-    # For write operations
+
     pharmacy_store_id = serializers.PrimaryKeyRelatedField(
-        queryset=PharmacyStore.objects.all(), 
-        source='pharmacy_store', 
-        write_only=True, 
+        queryset=PharmacyStore.objects.all(),
+        source='pharmacy_store',
+        write_only=True,
         required=False,
         allow_null=True
     )
+
     lab_unit_id = serializers.PrimaryKeyRelatedField(
-        queryset=LabUnit.objects.all(), 
-        source='lab_unit', 
-        write_only=True, 
+        queryset=LabUnit.objects.all(),
+        source='lab_unit',
+        write_only=True,
         required=False,
         allow_null=True
+    )
+
+    # ✅ NEW: flattened MRN for frontend convenience
+    patient_number = serializers.CharField(
+        source='patient_profile.patient_number',
+        read_only=True
     )
 
     class Meta:
         model = CustomUser
         fields = [
-            "id", "username", "first_name", "last_name", "other_name", "email", 
-            "gender", "user_category", "pharmacy_store_name", "lab_unit_name", 
-            "pharmacy_store_id", "lab_unit_id", "is_active", "is_staff", 
-            "is_intern", "patient_profile", "last_login"
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "other_name",
+            "email",
+            "gender",
+            "user_category",
+
+            "patient_profile",
+            "patient_number",   # 👈 NEW FLAT FIELD
+
+            "pharmacy_store_name",
+            "lab_unit_name",
+            "pharmacy_store_id",
+            "lab_unit_id",
+
+            "is_active",
+            "is_staff",
+            "is_intern",
+            "last_login"
         ]
+
         read_only_fields = ["last_login"]
 
     def get_pharmacy_store_name(self, obj):

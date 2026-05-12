@@ -138,7 +138,7 @@ const AcceptTransferModal = ({ show, onClose, transfer, onSuccess }) => {
                   <h4 className="font-bold text-gray-800 truncate">{patientName}</h4>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                      ID: {transfer.patient.id}
+                      PID: {transfer.patient.patient_number || transfer.patient.id}
                     </span>
                     <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded">
                       Incoming

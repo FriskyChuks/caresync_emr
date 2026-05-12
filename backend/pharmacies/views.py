@@ -937,6 +937,7 @@ def patient_prescriptions_list(request):
     for prescription in prescriptions:
         patient = prescription.patient
         patient_id = patient.id
+        patient_number = patient.patient_number
         
         if patient_id not in patient_dict:
             # Get patient name from user
@@ -949,7 +950,7 @@ def patient_prescriptions_list(request):
             patient_dict[patient_id] = {
                 'id': patient_id,
                 'name': patient_name,
-                'hospital_number': str(patient_id),
+                'hospital_number': str(patient_number) if patient_number else str(patient_id),
                 'phone': patient.phone or 'N/A',
                 'prescriptions': [],
                 'status': 'pending'

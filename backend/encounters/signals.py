@@ -151,10 +151,12 @@ def get_consultation_service_for_clinic(clinic_name):
     # Default consultation service
     return Service.objects.filter(name__icontains='Consultation').first()
 
+def get_digital_card_service():
+    """Get the digital card service"""
+    return Service.objects.filter(name__icontains='Digital Card').first()
+
 def get_registration_service():
-    """
-    Get the patient registration service.
-    """
+    """Get the patient registration service."""
     return Service.objects.filter(name__icontains='Patient Registration').first()
 
 def is_first_encounter(patient):
@@ -167,8 +169,7 @@ def is_first_encounter(patient):
 def create_consultation_service_and_bill(sender, instance, created, **kwargs):
     """
     Automatically create consultation service and bill when a patient is sent to a clinic.
-    Only triggers for clinic encounters (not wards).
-    For first encounter: Create both Registration and Consultation services
+    For first encounter: Create Registration, Digital Card, and Consultation services
     For subsequent encounters: Create only Consultation service
     """
     if created and instance.out_patient_transfer and not instance.in_patient_transfer:
@@ -179,22 +180,19 @@ def create_consultation_service_and_bill(sender, instance, created, **kwargs):
             # Get services
             consultation_service = get_consultation_service_for_clinic(instance.out_patient_transfer.name)
             registration_service = get_registration_service() if is_first_time else None
+            digital_card_service = get_digital_card_service() if is_first_time else None
             
             if not consultation_service:
                 print(f"Warning: No consultation service found for clinic: {instance.out_patient_transfer.name}")
                 return
-            
-            if is_first_time and not registration_service:
-                print(f"Warning: No registration service found for first-time patient")
-                # Continue with just consultation service
             
             # Create service request
             service_request = ServiceRequest.objects.create(
                 patient=patient,
                 requested_by=instance.transferred_by,
                 encounter_route=instance,
-                note=f"Auto-generated {'registration and ' if is_first_time else ''}consultation for {instance.out_patient_transfer.name}",
-                status="billed"  # Mark as billed immediately since we're creating the bill right away
+                note=f"Auto-generated {'registration, digital card, and ' if is_first_time else ''}consultation for {instance.out_patient_transfer.name}",
+                status="pending"
             )
             
             services_to_create = []
@@ -204,6 +202,13 @@ def create_consultation_service_and_bill(sender, instance, created, **kwargs):
                 services_to_create.append({
                     'service': registration_service,
                     'description': f"{registration_service.name} - New Patient"
+                })
+            
+            # Add digital card service for first-time patients
+            if is_first_time and digital_card_service:
+                services_to_create.append({
+                    'service': digital_card_service,
+                    'description': f"{digital_card_service.name} - New Patient"
                 })
             
             # Add consultation service for all clinic visits
@@ -223,7 +228,7 @@ def create_consultation_service_and_bill(sender, instance, created, **kwargs):
                     service=service,
                     quantity=1,
                     unit_price=service.price,
-                    status="billed"  # Mark as billed immediately since we're creating the bill right away
+                    status="pending"
                 )
                 
                 # Create bill for the service

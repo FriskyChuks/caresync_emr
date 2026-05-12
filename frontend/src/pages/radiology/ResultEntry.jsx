@@ -1,4 +1,4 @@
-// components/radiology/ResultEntry.js
+// components/radiology/ResultEntry.js - Mobile-friendly version with edit fix
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
@@ -17,6 +17,10 @@ const ResultEntry = () => {
   const [fetchingResult, setFetchingResult] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [activeTab, setActiveTab] = useState('investigations');
+  const [savingComment, setSavingComment] = useState(false);
+  const [comments, setComments] = useState({});
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Result form state
   const [resultForm, setResultForm] = useState({
@@ -25,8 +29,18 @@ const ResultEntry = () => {
     diagnosis: '',
     findings: '',
     is_abnormal: false,
-    supervised_by: ''  // Now stores string (name of supervisor)
+    supervised_by: ''
   });
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch request details
   const fetchRequestDetails = useCallback(async () => {
@@ -34,6 +48,15 @@ const ResultEntry = () => {
     try {
       const response = await axiosInstance.get(`/radiologyapi/requests/${requestId}/`);
       setRequest(response.data);
+      
+      // Initialize comments from details
+      const initialComments = {};
+      response.data.details?.forEach(detail => {
+        if (detail.radiologist_comment) {
+          initialComments[detail.id] = detail.radiologist_comment;
+        }
+      });
+      setComments(initialComments);
     } catch (err) {
       console.error('Error fetching request details', err);
       showMessage('Failed to load request details', 'danger');
@@ -68,11 +91,54 @@ const ResultEntry = () => {
     }
   };
 
+  // Handle radiologist comment change
+  const handleCommentChange = (detailId, comment) => {
+    setComments(prev => ({
+      ...prev,
+      [detailId]: comment
+    }));
+  };
+
+  // Save radiologist comment
+  const saveRadiologistComment = async (detailId) => {
+    const comment = comments[detailId] || '';
+    setSavingComment(true);
+    
+    try {
+      await axiosInstance.patch(`/radiologyapi/request-details/${detailId}/update-comment/`, {
+        radiologist_comment: comment
+      });
+      
+      showMessage('Comment saved successfully', 'success');
+      
+      // Update local request data
+      setRequest(prev => {
+        if (!prev) return prev;
+        const updatedDetails = prev.details.map(d => 
+          d.id === detailId ? { ...d, radiologist_comment: comment } : d
+        );
+        return { ...prev, details: updatedDetails };
+      });
+      
+    } catch (err) {
+      console.error('Error saving comment:', err);
+      showMessage('Failed to save comment', 'danger');
+    } finally {
+      setSavingComment(false);
+    }
+  };
+
+  // ✅ FIXED: Check if results can be entered - ALLOW for completed (to edit)
+  const canEnterResults = (detail) => {
+    // Allow entry for paid, in_progress, AND completed (for editing existing results)
+    return detail.status === 'paid' || detail.status === 'in_progress' || detail.status === 'completed';
+  };
+
   // Fetch existing result for a detail
   const fetchExistingResult = async (detailId) => {
     setFetchingResult(true);
     try {
-      const response = await axiosInstance.get(`/radiologyapi/open_investigation_result/${detailId}/`);
+      const response = await axiosInstance.get(`/radiologyapi/get-result/${detailId}/`);
       const result = response.data;
       
       setResultForm({
@@ -81,11 +147,10 @@ const ResultEntry = () => {
         diagnosis: result.diagnosis || '',
         findings: result.findings ? JSON.stringify(result.findings, null, 2) : '',
         is_abnormal: result.is_abnormal || false,
-        supervised_by: result.supervised_by || ''  // Now just a string
+        supervised_by: result.supervised_by || ''
       });
     } catch (err) {
       if (err.response?.status === 404) {
-        // No result exists, that's fine - we'll create a new one
         setResultForm({
           result: '',
           comments: '',
@@ -105,14 +170,22 @@ const ResultEntry = () => {
 
   // Start entering result for a specific detail
   const handleEnterResult = async (detail) => {
+    // Debug logging
+    console.log('Entering result for detail:', detail.id);
+    console.log('Detail status:', detail.status);
+    console.log('Can enter results:', canEnterResults(detail));
+    
+    if (!canEnterResults(detail)) {
+      showMessage(`Cannot enter results - status is ${detail.status_display || detail.status}. Payment required.`, 'warning');
+      return;
+    }
+    
     setSelectedDetail(detail);
     
-    // Check if detail is completed (result exists)
+    // Check if detail has existing result (status completed or we have a result)
     if (detail.status === 'completed') {
-      // Fetch the existing result
       await fetchExistingResult(detail.id);
     } else {
-      // Create mode - reset form
       setResultForm({
         result: '',
         comments: '',
@@ -126,24 +199,22 @@ const ResultEntry = () => {
     setActiveTab('result');
   };
 
-  // Submit result
+  // Submit result (create or update)
   const handleSubmitResult = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      // Prepare the payload - supervised_by is now a string
       const payload = {
         request_detail: selectedDetail.id,
         result: resultForm.result,
         comments: resultForm.comments || '',
         diagnosis: resultForm.diagnosis || '',
         is_abnormal: resultForm.is_abnormal,
-        supervised_by: resultForm.supervised_by || '',  // Send empty string if not provided
+        supervised_by: resultForm.supervised_by || '',
         created_by: user.id
       };
 
-      // Handle findings if present
       if (resultForm.findings && resultForm.findings.trim()) {
         try {
           payload.findings = JSON.parse(resultForm.findings);
@@ -154,34 +225,18 @@ const ResultEntry = () => {
         }
       }
 
-      console.log('Submitting payload:', payload);
-
+      // For completed items, we need to update via PUT instead of POST
       if (selectedDetail.status === 'completed') {
-        // We need to get the result ID first
-        try {
-          // First try to get the existing result to get its ID
-          const resultResponse = await axiosInstance.get(`/radiologyapi/open_investigation_result/${selectedDetail.id}/`);
-          const resultId = resultResponse.data.id;
-          
-          // UPDATE existing result
-          await axiosInstance.put(`/radiologyapi/results/${resultId}/`, payload);
-          showMessage('Result updated successfully!', 'success');
-        } catch (err) {
-          if (err.response?.status === 404) {
-            // Result doesn't exist anymore, create new one
-            await axiosInstance.post('/radiologyapi/results/', payload);
-            showMessage('Result submitted successfully!', 'success');
-          } else {
-            throw err;
-          }
-        }
+        // First get the existing result ID
+        const resultResponse = await axiosInstance.get(`/radiologyapi/get-result/${selectedDetail.id}/`);
+        const resultId = resultResponse.data.id;
+        await axiosInstance.put(`/radiologyapi/results/${resultId}/`, payload);
+        showMessage('Result updated successfully!', 'success');
       } else {
-        // CREATE new result
-        await axiosInstance.post('/radiologyapi/results/', payload);
+        await axiosInstance.post(`/radiologyapi/submit-result/${selectedDetail.id}/`, payload);
         showMessage('Result submitted successfully!', 'success');
       }
 
-      // Reset and refresh
       setSelectedDetail(null);
       setActiveTab('investigations');
       setResultForm({
@@ -195,11 +250,11 @@ const ResultEntry = () => {
       fetchRequestDetails();
     } catch (err) {
       console.error('Error submitting result:', err);
-      console.error('Error response:', err.response?.data);
       
-      // Handle specific error messages
-      if (err.response?.data?.request_detail) {
-        showMessage('A result already exists for this investigation', 'warning');
+      if (err.response?.data?.payment_required) {
+        showMessage('Payment required to enter results. Please complete payment first.', 'warning');
+      } else if (err.response?.data?.error) {
+        showMessage(err.response.data.error, 'danger');
       } else {
         showMessage('Failed to submit result', 'danger');
       }
@@ -208,7 +263,6 @@ const ResultEntry = () => {
     }
   };
 
-  // Cancel result entry
   const handleCancelResult = () => {
     setSelectedDetail(null);
     setActiveTab('investigations');
@@ -222,95 +276,47 @@ const ResultEntry = () => {
     });
   };
 
-  // Get status badge for detail
-  const getDetailStatusConfig = (status) => {
-    const config = {
-      pending: { 
-        bg: 'bg-amber-100', 
-        text: 'text-amber-800', 
-        border: 'border-amber-300',
-        label: 'Pending',
-        icon: '⏳'
-      },
-      in_progress: { 
-        bg: 'bg-blue-100', 
-        text: 'text-blue-800', 
-        border: 'border-blue-300',
-        label: 'In Progress',
-        icon: '🔄'
-      },
-      completed: { 
-        bg: 'bg-emerald-100', 
-        text: 'text-emerald-800', 
-        border: 'border-emerald-300',
-        label: 'Completed',
-        icon: '✅'
-      }
-    };
+  // Status config functions
+  const getDetailStatusConfig = (detail) => {
+    const status = detail.status;
+    const canEnter = canEnterResults(detail);
     
-    return config[status] || config.pending;
+    if (status === 'completed') {
+      return { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300', label: 'Completed', icon: '✅' };
+    }
+    if (canEnter && status !== 'completed') {
+      return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300', label: 'Ready for Results', icon: '📝' };
+    }
+    if (status === 'paid') {
+      return { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300', label: 'Paid - Ready', icon: '💰' };
+    }
+    if (status === 'partly_paid') {
+      return { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300', label: 'Partly Paid', icon: '💳' };
+    }
+    if (status === 'billed') {
+      return { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', label: 'Awaiting Payment', icon: '⏳' };
+    }
+    return { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-300', label: 'Pending', icon: '⏳' };
   };
 
   const getUrgencyConfig = (urgency) => {
     const config = {
-      routine: { 
-        bg: 'bg-gray-100', 
-        text: 'text-gray-800', 
-        border: 'border-gray-300',
-        label: 'Routine'
-      },
-      urgent: { 
-        bg: 'bg-amber-100', 
-        text: 'text-amber-800', 
-        border: 'border-amber-300',
-        label: 'Urgent'
-      },
-      stat: { 
-        bg: 'bg-rose-100', 
-        text: 'text-rose-800', 
-        border: 'border-rose-300',
-        label: 'STAT'
-      }
+      routine: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Routine', icon: '📋' },
+      urgent: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Urgent', icon: '⚠️' },
+      stat: { bg: 'bg-rose-100', text: 'text-rose-800', label: 'STAT', icon: '🚨' }
     };
     return config[urgency] || config.routine;
   };
 
-  const getRequestStatusConfig = (status) => {
-    const config = {
-      pending: { 
-        bg: 'bg-amber-100', 
-        text: 'text-amber-800', 
-        border: 'border-amber-300',
-        label: 'Pending',
-        icon: '⏳'
-      },
-      in_progress: { 
-        bg: 'bg-blue-100', 
-        text: 'text-blue-800', 
-        border: 'border-blue-300',
-        label: 'In Progress',
-        icon: '🔄'
-      },
-      completed: { 
-        bg: 'bg-emerald-100', 
-        text: 'text-emerald-800', 
-        border: 'border-emerald-300',
-        label: 'Completed',
-        icon: '✅'
-      }
-    };
-    return config[status] || config.pending;
-  };
-
   if (loading) {
     return (
-      <div className="w-full bg-white border-b border-gray-200 p-8">
-        <div className="flex flex-col items-center justify-center">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-gray-200 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="relative w-12 h-12 mx-auto">
+            <div className="absolute inset-0 rounded-full border-4 border-purple-200"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-purple-600 border-t-transparent animate-spin"></div>
           </div>
-          <p className="mt-4 text-base font-medium text-gray-700">Loading request details...</p>
+          <p className="mt-3 text-sm text-purple-600 font-medium">Loading request details...</p>
         </div>
       </div>
     );
@@ -318,487 +324,367 @@ const ResultEntry = () => {
 
   if (!request) {
     return (
-      <div className="w-full bg-white border-b border-gray-200 p-8">
-        <div className="flex flex-col items-center justify-center">
-          <div className="w-20 h-20 bg-gray-100 rounded-xl border border-gray-300 flex items-center justify-center">
-            <svg className="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-6 text-center max-w-md">
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl mx-auto flex items-center justify-center mb-3">
+            <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <p className="mt-4 text-base font-medium text-gray-800">Request not found</p>
-          <button 
-            className="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-            onClick={() => navigate('/radiology-dashboard')}
-          >
-            Back to Dashboard
-          </button>
+          <h3 className="text-lg font-bold text-gray-800 mb-1">Request Not Found</h3>
+          <p className="text-sm text-gray-500 mb-5">The investigation request doesn't exist or has been removed.</p>
+          <button className="px-5 py-2 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition" onClick={() => navigate('/radiology-dashboard')}>Back to Dashboard</button>
         </div>
       </div>
     );
   }
 
   const urgency = getUrgencyConfig(request.urgency);
-  const requestStatus = getRequestStatusConfig(request.status);
   const completedCount = request.details?.filter(d => d.status === 'completed').length || 0;
   const totalCount = request.details?.length || 0;
+  const paidCount = request.details?.filter(d => d.status === 'paid' || d.status === 'in_progress' || d.status === 'completed').length || 0;
+  const pendingPaymentCount = totalCount - paidCount;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen">
-      {/* Header Card - Full Width */}
-      <div className="w-full bg-white border-b border-gray-300 shadow-sm">
-        <div className="px-6 py-4 bg-gradient-to-r from-blue-700 to-indigo-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <h5 className="text-base font-bold text-white flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Enter Investigation Results
-              </h5>
-              <div className="flex flex-wrap gap-4 mt-2">
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/90">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+      <div className="max-w-7xl mx-auto px-3 py-3">
+        
+        {/* Mobile-Optimized Header */}
+        <div className="relative mb-3 overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 shadow-lg">
+          <div className="relative px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg flex-shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <span className="font-semibold">RAD#{request.id}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/90">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-semibold">{request.patient_name}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/90">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                  </svg>
-                  <span className="font-semibold">PID: {request.patient}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-sm text-white/90">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-semibold">Dr. {request.created_by_name}</span>
-                </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-sm font-bold text-white truncate">Results Entry</h1>
+                    <span className="flex-shrink-0 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-semibold text-white">RAD#{request.id}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-white/90 truncate">
+                    <span className="truncate">{request.patient_name || 'Unknown Patient'}</span>
+                    <span className="text-white/60 flex-shrink-0">•</span>
+                    <span className="flex-shrink-0">ID: {request.patient_id}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button 
-                className="px-4 py-2 bg-white/20 text-white text-sm font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40"
-                onClick={() => navigate('/radiology-dashboard')}
-              >
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m4-2h10" />
+              
+              <div className="flex gap-1.5 flex-shrink-0">
+                <button 
+                  className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all"
+                  onClick={() => navigate('/radiology-dashboard')}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
-                  Dashboard
-                </span>
-              </button>
-              <button 
-                className="px-4 py-2 bg-white/20 text-white text-sm font-semibold rounded-lg hover:bg-white/30 transition-colors border border-white/40"
-                onClick={fetchRequestDetails}
-              >
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </button>
+                <button 
+                  className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-all"
+                  onClick={fetchRequestDetails}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Refresh
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Request Info Bar */}
-        <div className="px-6 py-3 bg-gray-100 border-b border-gray-300">
-          <div className="flex flex-wrap gap-6 items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">Urgency:</span>
-              <span className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold ${urgency.bg} ${urgency.text} border ${urgency.border}`}>
-                {urgency.label}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">Status:</span>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold ${requestStatus.bg} ${requestStatus.text} border ${requestStatus.border}`}>
-                <span>{requestStatus.icon}</span>
-                {requestStatus.label}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">Date:</span>
-              <span className="text-sm font-medium text-gray-800">{new Date(request.date_created).toLocaleDateString()}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-600">Time:</span>
-              <span className="text-sm font-medium text-gray-800">{new Date(request.date_created).toLocaleTimeString()}</span>
-            </div>
-
-            {request.clinical_notes && (
-              <div className="flex items-center gap-2 flex-1">
-                <span className="text-sm font-semibold text-gray-600">Notes:</span>
-                <span className="text-sm font-medium text-gray-800 truncate max-w-xs" title={request.clinical_notes}>
-                  {request.clinical_notes}
-                </span>
+                </button>
               </div>
-            )}
+            </div>
+            
+            {/* Quick info chips */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium ${urgency.bg} ${urgency.text}`}>
+                {urgency.icon} {urgency.label}
+              </span>
+              {request.patient_gender && (
+                <span className="text-[9px] text-white/80 bg-white/10 px-1.5 py-0.5 rounded">{request.patient_gender}</span>
+              )}
+              {request.patient_age && (
+                <span className="text-[9px] text-white/80 bg-white/10 px-1.5 py-0.5 rounded">{request.patient_age}y</span>
+              )}
+              <span className="text-[9px] text-white/80 bg-white/10 px-1.5 py-0.5 rounded">{new Date(request.date_created).toLocaleDateString()}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content - Full Width */}
-      <div className="w-full p-6">
+        {/* Compact Stats Cards */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="bg-white rounded-lg p-2.5 shadow-sm border border-purple-100">
+            <p className="text-xs text-purple-600 font-medium">Total Tests</p>
+            <p className="text-lg font-bold text-gray-800">{totalCount}</p>
+          </div>
+          <div className="bg-white rounded-lg p-2.5 shadow-sm border border-purple-100">
+            <p className="text-xs text-amber-600 font-medium">Pending Payment</p>
+            <p className="text-lg font-bold text-amber-600">{pendingPaymentCount}</p>
+          </div>
+          <div className="bg-white rounded-lg p-2.5 shadow-sm border border-purple-100">
+            <p className="text-xs text-green-600 font-medium">Ready/Paid</p>
+            <p className="text-lg font-bold text-green-600">{paidCount}</p>
+          </div>
+          <div className="bg-white rounded-lg p-2.5 shadow-sm border border-purple-100">
+            <p className="text-xs text-emerald-600 font-medium">Completed</p>
+            <p className="text-lg font-bold text-emerald-600">{completedCount}</p>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="bg-white rounded-lg p-2.5 mb-3 shadow-sm border border-purple-100">
+          <div className="flex justify-between mb-1">
+            <span className="text-xs font-semibold text-gray-700">Progress</span>
+            <span className="text-xs font-bold text-purple-600">{Math.round(progressPercentage)}%</span>
+          </div>
+          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
+          </div>
+        </div>
+
         {/* Tabs */}
-        <div className="mb-4 border-b border-gray-300">
-          <div className="flex gap-2">
-            <button 
-              className={`px-5 py-2.5 text-sm font-bold rounded-t-lg transition-colors ${
-                activeTab === 'investigations' 
-                  ? 'bg-white text-blue-700 border-t border-l border-r border-gray-300 -mb-px' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-              }`}
+        <div className="mb-3">
+          <div className="flex gap-1 bg-gray-100 p-0.5 rounded-lg">
+            <button
               onClick={() => setActiveTab('investigations')}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                activeTab === 'investigations'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Investigations
-                <span className="px-2 py-0.5 bg-blue-600 text-white rounded-full text-xs font-bold">
-                  {totalCount}
-                </span>
-              </span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Tests ({totalCount})
             </button>
-            <button 
-              className={`px-5 py-2.5 text-sm font-bold rounded-t-lg transition-colors ${
-                activeTab === 'result' && selectedDetail
-                  ? 'bg-white text-blue-700 border-t border-l border-r border-gray-300 -mb-px' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-              } ${!selectedDetail ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => activeTab === 'result' ? handleCancelResult() : null}
+            <button
+              onClick={() => selectedDetail && setActiveTab('result')}
               disabled={!selectedDetail}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                activeTab === 'result' && selectedDetail
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              } ${!selectedDetail ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                {selectedDetail?.status === 'completed' ? 'Edit Result' : 'Enter Result'}
-                {selectedDetail && (
-                  <span className="px-2 py-0.5 bg-indigo-600 text-white rounded-full text-xs font-bold truncate max-w-[120px]">
-                    {selectedDetail.investigation_title}
-                  </span>
-                )}
-              </span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              {selectedDetail?.status === 'completed' ? 'Edit' : 'Enter'}
             </button>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="bg-white rounded-lg border border-gray-300 shadow-sm">
-          {/* Investigations List */}
-          {activeTab === 'investigations' && (
-            <div className="p-5">
-              <div className="border border-gray-300 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">#</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Investigation</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">View</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Qty</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-300 bg-white">
-                      {request.details && request.details.map((detail, index) => {
-                        const status = getDetailStatusConfig(detail.status);
-                        return (
-                          <tr key={detail.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-3 text-sm font-medium text-gray-800">{index + 1}</td>
-                            <td className="px-4 py-3">
-                              <div>
-                                <span className="text-sm font-semibold text-gray-900">{detail.investigation_title}</span>
-                                {detail.notes && (
-                                  <p className="text-xs text-gray-600 mt-0.5 font-medium">Note: {detail.notes}</p>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-700">{detail.investigation_view_title || '—'}</td>
-                            <td className="px-4 py-3 text-sm font-medium text-gray-800">{detail.quantity}</td>
-                            <td className="px-4 py-3">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-bold ${status.bg} ${status.text} border ${status.border}`}>
-                                <span>{status.icon}</span>
-                                {status.label}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3">
-                              <button
-                                className={`px-3 py-1.5 text-white text-xs font-bold rounded-md transition-colors flex items-center gap-1.5 shadow-sm ${
-                                  detail.status === 'completed' 
-                                    ? 'bg-amber-600 hover:bg-amber-700' 
-                                    : 'bg-blue-600 hover:bg-blue-700'
-                                } ${fetchingResult && selectedDetail?.id === detail.id ? 'opacity-50 cursor-wait' : ''}`}
-                                onClick={() => handleEnterResult(detail)}
-                                disabled={fetchingResult}
-                              >
-                                {fetchingResult && selectedDetail?.id === detail.id ? (
-                                  <>
-                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Loading...
-                                  </>
-                                ) : (
-                                  <>
-                                    {detail.status === 'completed' ? (
-                                      <>
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                        Update
-                                      </>
-                                    ) : (
-                                      <>
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                        Enter
-                                      </>
-                                    )}
-                                  </>
-                                )}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Progress Summary */}
-              <div className="mt-5 bg-gray-100 rounded-lg border border-gray-300 p-5">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-700">{totalCount}</div>
-                    <p className="text-sm font-semibold text-gray-600">Total Investigations</p>
-                  </div>
-                  <div className="text-center border-x border-gray-300">
-                    <div className="text-2xl font-bold text-emerald-700">{completedCount}</div>
-                    <p className="text-sm font-semibold text-gray-600">Completed</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-700">{totalCount - completedCount}</div>
-                    <p className="text-sm font-semibold text-gray-600">Pending</p>
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Overall Progress</span>
-                    <span className="text-sm font-bold text-gray-800">{Math.round(progressPercentage)}%</span>
-                  </div>
-                  <div className="h-2.5 bg-gray-300 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-emerald-600 rounded-full transition-all"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Result Entry Form */}
-          {activeTab === 'result' && selectedDetail && (
-            <div className="p-5">
-              <div className="border border-gray-300 rounded-lg overflow-hidden">
-                <div className={`px-5 py-4 bg-gradient-to-r ${
-                  selectedDetail.status === 'completed' 
-                    ? 'from-amber-700 to-orange-700' 
-                    : 'from-blue-700 to-indigo-800'
-                }`}>
-                  <h5 className="text-base font-bold text-white flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    {selectedDetail.status === 'completed' ? 'Update Result for:' : 'Enter Result for:'} {selectedDetail.investigation_title}
-                  </h5>
-                  {selectedDetail.investigation_view_title && (
-                    <p className="text-sm text-white/90 mt-1 font-medium">
-                      View: {selectedDetail.investigation_view_title}
-                    </p>
-                  )}
-                  {fetchingResult && (
-                    <p className="text-xs text-white/80 mt-1 flex items-center gap-1">
-                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Loading existing result...
-                    </p>
-                  )}
-                </div>
-
-                <form onSubmit={handleSubmitResult} className="p-6">
-                  <div className="space-y-5">
-                    <div>
-                      <label htmlFor="result" className="block text-sm font-bold text-gray-700 mb-2">
-                        Result <span className="text-rose-600">*</span>
-                      </label>
-                      <textarea
-                        id="result"
-                        name="result"
-                        rows="6"
-                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-colors font-medium text-gray-800"
-                        value={resultForm.result}
-                        onChange={handleResultInputChange}
-                        required
-                        placeholder="Enter detailed investigation results, findings, observations, and interpretation..."
-                        disabled={fetchingResult}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label htmlFor="comments" className="block text-sm font-bold text-gray-700 mb-2">
-                          Comments
-                        </label>
-                        <textarea
-                          id="comments"
-                          name="comments"
-                          rows="4"
-                          className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-colors font-medium text-gray-800"
-                          value={resultForm.comments}
-                          onChange={handleResultInputChange}
-                          placeholder="Brief comments or clinical impressions"
-                          disabled={fetchingResult}
-                        />
+        {/* Investigations List - Mobile card view */}
+        {activeTab === 'investigations' && (
+          <div className="space-y-2 pb-20">
+            {request.details?.map((detail, index) => {
+              const status = getDetailStatusConfig(detail);
+              const isPaymentBlocked = !canEnterResults(detail) && detail.status !== 'completed';
+              
+              return (
+                <div key={detail.id} className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-gray-400">#{index + 1}</span>
+                        <h4 className="text-sm font-semibold text-gray-800">{detail.investigation_title}</h4>
                       </div>
-                      <div>
-                        <label htmlFor="diagnosis" className="block text-sm font-bold text-gray-700 mb-2">
-                          Diagnosis
-                        </label>
-                        <textarea
-                          id="diagnosis"
-                          name="diagnosis"
-                          rows="4"
-                          className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-colors font-medium text-gray-800"
-                          value={resultForm.diagnosis}
-                          onChange={handleResultInputChange}
-                          placeholder="Diagnostic impression or conclusion"
-                          disabled={fetchingResult}
-                        />
-                      </div>
+                      {detail.investigation_view_title && (
+                        <p className="text-xs text-gray-500 mt-0.5">{detail.investigation_view_title}</p>
+                      )}
+                      {detail.notes && (
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-1">📝 {detail.notes}</p>
+                      )}
                     </div>
-
-                    <div>
-                      <label htmlFor="findings" className="block text-sm font-bold text-gray-700 mb-2">
-                        Structured Findings (JSON)
-                      </label>
-                      <textarea
-                        id="findings"
-                        name="findings"
-                        rows="4"
-                        className="w-full px-4 py-3 text-sm font-mono border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-colors text-gray-800"
-                        value={resultForm.findings}
-                        onChange={(e) => handleFindingsChange(e.target.value)}
-                        placeholder='{"measurement": "value", "observation": "description"}'
-                        disabled={fetchingResult}
-                      />
-                      <p className="mt-2 text-xs font-medium text-gray-600">
-                        Optional: Enter structured findings in JSON format for standardized reporting
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="flex items-center gap-3 p-4 bg-gray-100 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors">
-                          <input
-                            type="checkbox"
-                            name="is_abnormal"
-                            checked={resultForm.is_abnormal}
-                            onChange={handleResultInputChange}
-                            className="w-4 h-4 rounded border-gray-400 text-blue-600 focus:ring-blue-500"
-                            disabled={fetchingResult}
-                          />
-                          <span className="flex items-center gap-2 text-sm font-bold text-gray-700">
-                            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                            Mark as Abnormal Findings
-                          </span>
-                        </label>
-                      </div>
-                      <div>
-                        <label htmlFor="supervised_by" className="block text-sm font-bold text-gray-700 mb-2">
-                          Supervised By
-                        </label>
-                        <input
-                          type="text"
-                          id="supervised_by"
-                          name="supervised_by"
-                          className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-colors font-medium text-gray-800"
-                          value={resultForm.supervised_by}
-                          onChange={handleResultInputChange}
-                          placeholder="Enter supervisor name (e.g., Dr. Smith)"
-                          disabled={fetchingResult}
-                        />
-                        <p className="mt-1 text-xs text-gray-500">Enter the name of the supervising radiologist/consultant</p>
-                      </div>
-                    </div>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${status.bg} ${status.text}`}>
+                      {status.icon} {status.label}
+                    </span>
                   </div>
-
-                  <div className="mt-6 pt-5 border-t border-gray-300 flex items-center justify-between">
-                    <button
-                      type="button"
-                      className="px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-                      onClick={handleCancelResult}
-                      disabled={submitting || fetchingResult}
-                    >
-                      <span className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to Investigations
-                      </span>
-                    </button>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm font-medium text-gray-600">
-                        {selectedDetail.status === 'completed' ? 'Updating existing result' : 'Creating new result'}
-                      </span>
+                  
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                    {isPaymentBlocked ? (
+                      <div className="relative group">
+                        <button className="px-2 py-1 bg-gray-300 text-gray-500 text-[10px] font-semibold rounded-lg cursor-not-allowed flex items-center gap-1" disabled>
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          Locked
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        type="submit"
-                        className={`px-6 py-2.5 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm ${
-                          selectedDetail.status === 'completed'
-                            ? 'bg-amber-600 hover:bg-amber-700'
-                            : 'bg-blue-600 hover:bg-blue-700'
+                        className={`px-2 py-1 text-white text-[10px] font-semibold rounded-lg transition flex items-center gap-1 ${
+                          detail.status === 'completed' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-purple-600 hover:bg-purple-700'
                         }`}
-                        disabled={submitting || fetchingResult || !resultForm.result.trim()}
+                        onClick={() => handleEnterResult(detail)}
                       >
-                        {submitting ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            {selectedDetail.status === 'completed' ? 'Updating...' : 'Submitting...'}
-                          </>
+                        {detail.status === 'completed' ? (
+                          <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>Edit</>
                         ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            {selectedDetail.status === 'completed' ? 'Update Result' : 'Submit Result'}
-                          </>
+                          <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>Enter</>
                         )}
                       </button>
-                    </div>
+                    )}
+                    
+                    {detail.radiologist_comment && (
+                      <button className="p-1 text-gray-400 hover:text-purple-600 transition relative group" title={detail.radiologist_comment}>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
-                </form>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Result Entry Form - Mobile optimized */}
+        {activeTab === 'result' && selectedDetail && (
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div className={`px-3 py-2 bg-gradient-to-r ${selectedDetail.status === 'completed' ? 'from-amber-500 to-orange-500' : 'from-purple-600 to-pink-500'} text-white`}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    {selectedDetail.status === 'completed' ? 'Update Result' : 'Enter Result'}
+                  </h3>
+                  <p className="text-xs text-white/90 truncate">{selectedDetail.investigation_title}</p>
+                </div>
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold bg-white/20 text-white`}>
+                  {selectedDetail.status_display || selectedDetail.status}
+                </span>
               </div>
             </div>
-          )}
-        </div>
+
+            <form onSubmit={handleSubmitResult} className="p-3 space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Result / Findings <span className="text-red-500">*</span></label>
+                <textarea
+                  name="result"
+                  rows={12}
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-200 transition font-medium text-gray-800"
+                  value={resultForm.result}
+                  onChange={handleResultInputChange}
+                  required
+                  placeholder="Enter detailed investigation results..."
+                  disabled={fetchingResult}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Comments</label>
+                <textarea
+                  name="comments"
+                  rows={3}
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-200 transition font-medium text-gray-800"
+                  value={resultForm.comments}
+                  onChange={handleResultInputChange}
+                  placeholder="Brief comments or clinical impressions..."
+                  disabled={fetchingResult}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Diagnosis</label>
+                <textarea
+                  name="diagnosis"
+                  rows={3}
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-200 transition font-medium text-gray-800"
+                  value={resultForm.diagnosis}
+                  onChange={handleResultInputChange}
+                  placeholder="Diagnostic impression or conclusion..."
+                  disabled={fetchingResult}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 py-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="is_abnormal"
+                    checked={resultForm.is_abnormal}
+                    onChange={handleResultInputChange}
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-amber-500 focus:ring-amber-200"
+                    disabled={fetchingResult}
+                  />
+                  <span className="flex items-center gap-1 text-xs font-semibold text-gray-700">
+                    <svg className="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Abnormal
+                  </span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Supervised By</label>
+                <input
+                  type="text"
+                  name="supervised_by"
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-200 transition"
+                  value={resultForm.supervised_by}
+                  onChange={handleResultInputChange}
+                  placeholder="Enter supervisor name"
+                  disabled={fetchingResult}
+                />
+              </div>
+
+              {/* Radiologist Comment Section */}
+              <div className="border-t border-gray-200 pt-3">
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Radiologist Comment</label>
+                <div className="flex gap-2">
+                  <textarea
+                    className="flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-200 transition resize-none"
+                    rows={2}
+                    value={comments[selectedDetail.id] || ''}
+                    onChange={(e) => handleCommentChange(selectedDetail.id, e.target.value)}
+                    placeholder="Add comments about this investigation..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => saveRadiologistComment(selectedDetail.id)}
+                    disabled={savingComment}
+                    className="px-2 py-1.5 bg-purple-600 text-white text-[10px] font-semibold rounded-lg hover:bg-purple-700 transition disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {savingComment ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : 'Save'}
+                  </button>
+                </div>
+                <p className="mt-1 text-[9px] text-gray-400">Internal note for radiologists/technicians</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  className="flex-1 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-1"
+                  onClick={handleCancelResult}
+                  disabled={submitting || fetchingResult}
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`flex-1 px-3 py-1.5 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1 shadow-sm ${
+                    selectedDetail.status === 'completed' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-purple-600 hover:bg-purple-700'
+                  } ${(!resultForm.result.trim() || submitting || fetchingResult) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!resultForm.result.trim() || submitting || fetchingResult}
+                >
+                  {submitting ? (
+                    <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Processing</>
+                  ) : (
+                    <><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>{selectedDetail.status === 'completed' ? 'Update' : 'Submit'}</>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

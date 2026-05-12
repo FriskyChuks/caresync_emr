@@ -45,23 +45,26 @@ const Wards = () => {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 shadow-md">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-  <div className="p-2 bg-white/20 rounded-lg flex-shrink-0">
-    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-    </svg>
-  </div>
-  <div className="min-w-0 flex-1">
-    {/* Responsive title - changes based on screen size */}
-    <h1 className="text-base sm:text-lg font-bold text-white truncate">
-      <span className="hidden xs:inline">Hospital Wards</span>
-      <span className="xs:hidden">Wards</span>
-    </h1>
-    <p className="text-blue-100 text-xs mt-0.5">
-      <span className="hidden xs:inline">{wards.length} wards • Manage assignments</span>
-      <span className="xs:hidden">{wards.length} wards</span>
-    </p>
-  </div>
-</div>
+                        <div className="p-2 bg-white/20 rounded-lg flex-shrink-0">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 9h16v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9zm0 0V6m16 3V6" />
+                                <ellipse cx="12" cy="12" rx="1.5" ry="1" strokeWidth="1.5" />
+                                <path d="M9 12h6" strokeWidth="1.5" />
+                                <path d="M7 15v2m10-2v2" strokeWidth="1.5" />
+                            </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            {/* Responsive title - changes based on screen size */}
+                            <h1 className="text-base sm:text-lg font-bold text-white truncate">
+                            <span className="hidden xs:inline">Hospital Wards</span>
+                            <span className="xs:hidden">Wards</span>
+                            </h1>
+                            <p className="text-blue-100 text-xs mt-0.5">
+                            <span className="hidden xs:inline">{wards.length} wards • Manage assignments</span>
+                            <span className="xs:hidden">{wards.length} wards</span>
+                            </p>
+                        </div>
+                    </div>
                     
                     {/* View Toggle */}
                     <div className="flex items-center gap-1 bg-white/20 rounded-lg p-1">

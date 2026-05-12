@@ -43,6 +43,8 @@ const StatusBadge = ({ status, children, className = "" }) => {
 const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) => {
   if (!patient) return null;
 
+  console.log("Rendering PatientProfileCard with patient data:", patient);
+
   const { user_info, date_of_birth, age, status, phone, email, gender, marital_status, 
     occupation, date_created, created_by, registered_by, active_visit, photo_url } = patient;
 
@@ -96,7 +98,7 @@ const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) 
                 <div className="mt-3">
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-1.5 rounded-lg border border-blue-200">
                     <span className="text-xs font-mono font-semibold text-blue-700">
-                      PID-{patient.id}
+                      PID: {patient?.patient_number}
                     </span>
                   </div>
                 </div>

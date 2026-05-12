@@ -19,7 +19,7 @@ class LabUnit(models.Model):
         return self.name
 
 class Test(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     is_complex = models.BooleanField(default=False)
     si_unit = models.CharField(max_length=50, blank=True, null=True)
     lab_unit = models.ForeignKey(LabUnit, on_delete=models.CASCADE, related_name="tests")  # Tied to a lab unit

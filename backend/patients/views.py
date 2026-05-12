@@ -2,6 +2,7 @@ import logging
 
 from rest_framework import generics, filters
 from django.db.models import Q
+import re
 from accounts.models import CustomUser
 from accounts.serializers import CustomUserCreateSerializer
 from rest_framework import generics, parsers
@@ -60,23 +61,68 @@ class PatientSearchView(generics.ListAPIView):
     serializer_class = CustomUserCreateSerializer
 
     def get_queryset(self):
-        query = self.request.query_params.get("q", "")
+        query = (self.request.query_params.get("q") or "").strip()
+
         if not query:
             return CustomUser.objects.none()
 
-        return (
-            CustomUser.objects.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(patient_profile__id__iexact=query)
-                | Q(patient_profile__phone__icontains=query)
-                | Q(email__icontains=query)
-            )
-            .select_related(
-                "patient_profile",        # ✅ patient profile
-                "patient_profile__wallet" # ✅ wallet relation
-            )
-            .order_by("first_name")[:25]
+        qs = CustomUser.objects.all().select_related(
+            "patient_profile",
+            "patient_profile__wallet"
         )
 
+        # -----------------------------
+        # 1. PATIENT NUMBER SEARCH
+        # -----------------------------
+        # Normalize input
+        cleaned = re.sub(r"[^0-9]", "", query)  # extract digits only
 
+        patient_number_q = Q()
+
+        if cleaned:
+            # last 6 digits match (000018)
+            patient_number_q |= Q(patient_profile__patient_number__endswith=cleaned)
+
+        if "FMCK" in query.upper():
+            patient_number_q |= Q(patient_profile__patient_number__iexact=query)
+
+        if "-" in query:
+            patient_number_q |= Q(patient_profile__patient_number__icontains=query)
+
+        # -----------------------------
+        # 2. NAME SEARCH (CONTROLLED)
+        # -----------------------------
+        # split words to prevent over-broad matches
+        name_parts = query.split()
+
+        name_q = Q()
+
+        if len(name_parts) == 1:
+            # single word → stricter matching
+            name_q = (
+                Q(first_name__istartswith=query) |
+                Q(last_name__istartswith=query)
+            )
+        else:
+            # multi-word → full flexible match
+            name_q = (
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query)
+            )
+
+        # -----------------------------
+        # 3. OTHER FIELDS
+        # -----------------------------
+        other_q = (
+            Q(email__icontains=query) |
+            Q(patient_profile__phone__icontains=query)
+        )
+
+        # -----------------------------
+        # FINAL COMBINATION
+        # -----------------------------
+        return (
+            qs.filter(patient_number_q | name_q | other_q)
+            .distinct()
+            .order_by("first_name")[:25]
+        )

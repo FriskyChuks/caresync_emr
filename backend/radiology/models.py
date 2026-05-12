@@ -41,14 +41,14 @@ class InvestigationView(models.Model):
 
 
 
-# 4. Investigation Request Table (Updated)
-# Updated models with your status choices
 REQUEST_STATUS = [
-    ("pending", "Pending"),
-    ("billed", "Billed"),
-    ("partly_billed", "Partly Billed"),
-    ("in_progress", "In progress"),
-    ("completed", "Completed"),
+    ("pending", "Pending"),           # No payment, no results
+    ("billed", "Billed"),             # Bill created but not paid
+    ("partly_billed", "Partly Billed"), # Multiple bills, some paid (legacy)
+    ("partly_paid", "Partly Paid"),   # NEW: Some items paid, some unpaid
+    ("paid", "Paid"),                 # NEW: Payment completed
+    ("in_progress", "In progress"),   # Payment done, results being entered
+    ("completed", "Completed"),       # Results finalized
     ("canceled", "Canceled"),
 ]
 
@@ -57,7 +57,8 @@ class InvestigationRequest(models.Model):
     encounter = models.ForeignKey(EncounterRoute, on_delete=models.SET_NULL, null=True, blank=True)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="investigation_requests")
     clinical_notes = models.TextField(blank=True, null=True)
-    urgency = models.CharField(max_length=20, choices=[("routine", "Routine"), ("urgent", "Urgent"), ("stat", "STAT")], default="routine")
+    urgency = models.CharField(max_length=20, choices=[("routine", "Routine"), 
+                                                       ("urgent", "Urgent"), ("stat", "STAT")], default="routine")
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default="pending")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
@@ -73,26 +74,47 @@ class InvestigationRequest(models.Model):
         self.save()
 
     def update_overall_status(self):
-        """Auto-update request status based on detail statuses"""
+        """
+        Auto-update request status based on detail statuses
+        This should consider paid status properly
+        """
         details = self.details.all()
         
         if not details.exists():
             self.status = "pending"
-        elif all(detail.status == "completed" for detail in details):
+            self.save(update_fields=['status'])
+            return
+        
+        # Get all detail statuses
+        statuses = [d.status for d in details]
+        
+        # Check if all are completed
+        if all(s == "completed" for s in statuses):
             self.status = "completed"
-        elif any(detail.status == "in_progress" or detail.status == "completed" for detail in details):
+        # Check if any are in progress
+        elif any(s == "in_progress" for s in statuses):
             self.status = "in_progress"
-        elif all(detail.status in ["billed", "completed"] for detail in details):
+        # Check if all are either paid or completed (ready for results)
+        elif all(s in ["paid", "completed"] for s in statuses):
+            self.status = "paid"
+        # Check if any are paid (some paid, some pending)
+        elif any(s == "paid" for s in statuses):
+            self.status = "partly_paid"
+        # Check if all are billed or beyond
+        elif all(s in ["billed", "paid", "completed"] for s in statuses):
             self.status = "billed"
-        elif any(detail.status == "billed" for detail in details):
+        # Check if any are billed
+        elif any(s == "billed" for s in statuses):
             self.status = "partly_billed"
-        elif any(detail.status == "canceled" for detail in details):
+        # Check if any are canceled
+        elif any(s == "canceled" for s in statuses):
             self.status = "canceled"
         else:
             self.status = "pending"
         
-        self.save()
+        self.save(update_fields=['status'])
 
+   
 # 5. Request Details Table (NEW)
 class RequestDetail(models.Model):
     request = models.ForeignKey(InvestigationRequest, on_delete=models.CASCADE, related_name="details")
@@ -102,8 +124,12 @@ class RequestDetail(models.Model):
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default="pending")
-    priority = models.PositiveIntegerField(default=1)  # For ordering tests
-    notes = models.TextField(blank=True, null=True)  # Specific notes for this test
+    priority = models.PositiveIntegerField(default=1)
+    notes = models.TextField(blank=True, null=True)
+    
+    # NEW: MLS/Radiologist comment field
+    radiologist_comment = models.TextField(blank=True, null=True, help_text="Comments from radiologist/MLS about this investigation")
+    
     date_created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -118,8 +144,17 @@ class RequestDetail(models.Model):
             self.request.update_overall_status()
             self.request.update_total_amount()
 
+    def can_enter_results(self):
+        """Check if results can be entered for this detail"""
+        return self.status in ["paid", "in_progress"]
+    
+    def is_payment_complete(self):
+        """Check if payment is completed for this detail"""
+        return self.status in ["paid", "in_progress", "completed"]
+
     def __str__(self):
         return f"{self.investigation.title} - {self.request.patient}"
+
 
 # 6. Result Table (Updated)
 class InvestigationResult(models.Model):
@@ -127,7 +162,7 @@ class InvestigationResult(models.Model):
     result = models.TextField()
     comments = models.CharField(max_length=500, blank=True, null=True)
     diagnosis = models.TextField(blank=True, null=True)
-    findings = models.JSONField(blank=True, null=True)  # For structured data
+    findings = models.JSONField(blank=True, null=True)
     attachments = models.FileField(upload_to='radiology/results/', blank=True, null=True)
     is_abnormal = models.BooleanField(default=False)
     supervised_by = models.CharField(max_length=255, blank=True, null=True)

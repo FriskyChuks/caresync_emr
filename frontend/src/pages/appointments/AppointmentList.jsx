@@ -38,6 +38,8 @@ const AppointmentList = () => {
     fetchAppointments();
   }, []);
 
+  console.log("Fetched appointments:", appointments);
+
   const filteredAppointments = appointments.filter(appointment =>
     appointment.patient_data?.user_info?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     appointment.patient_data?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -264,7 +266,7 @@ const AppointmentCard = ({ appointment, onEdit, onSendToClinic }) => {
             <h4 className="text-sm font-semibold text-gray-900">
               {appointment.patient_data?.user_info?.fullname || 'N/A'}
             </h4>
-            <p className="text-xs text-gray-500">ID: {appointment.patient}</p>
+            <p className="text-xs text-gray-500">{appointment?.patient_data?.patient_number}</p>
           </div>
         </div>
         <span className={`text-xs px-2 py-1 rounded-full ${getStatusColors(appointment.status)}`}>
@@ -347,7 +349,7 @@ const AppointmentTableRow = ({ appointment, onEdit, onSendToClinic }) => {
             <div className="text-sm font-medium text-gray-900">
               {appointment.patient_data?.user_info?.fullname || 'N/A'}
             </div>
-            <div className="text-xs text-gray-500">ID: {appointment.patient}</div>
+            <div className="text-xs text-gray-500">{appointment?.patient_data?.patient_number}</div>
           </div>
         </div>
       </td>

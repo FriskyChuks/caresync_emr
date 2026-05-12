@@ -97,7 +97,7 @@ const RadiologyDashboard = () => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="">
       {/* Main Card with Glassmorphism Effect */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
         {/* Animated Gradient Header */}

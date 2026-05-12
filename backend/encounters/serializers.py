@@ -106,6 +106,7 @@ class TransferRequestSerializer(serializers.ModelSerializer):
         user_info = getattr(patient, "user", None)
         return {
             "id": patient.id,
+            "patient_number": patient.patient_number,
             "fullname": f"{user_info.first_name} {user_info.last_name}" if user_info else "",
             "age": patient.age,
             "gender": user_info.gender.title if user_info and user_info.gender else None,

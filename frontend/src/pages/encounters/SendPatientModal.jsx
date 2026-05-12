@@ -162,7 +162,7 @@ const SendPatientModal = ({
                     <p className="text-blue-100 text-sm font-medium">
                       {patient.user_info?.first_name} {patient.user_info?.last_name}
                       <span className="mx-2">•</span>
-                      PID: {patient.id}
+                      PID: {patient?.patient_number || patient.id}
                     </p>
                   )}
                 </div>

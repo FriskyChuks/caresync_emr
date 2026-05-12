@@ -261,7 +261,7 @@ const LabDashboard = () => {
                           {req.patient_info?.user_info?.fullname}
                         </div>
                         <div className="text-xs text-gray-600 flex items-center gap-1">
-                          <span className="bg-gray-100 px-1 py-0.5 rounded">#{req.patient_info?.id}</span>
+                          <span className="bg-gray-100 px-1 py-0.5 rounded">{req.patient_info?.patient_number}</span>
                           <span>•</span>
                           <span>{req.patient_info?.phone}</span>
                         </div>

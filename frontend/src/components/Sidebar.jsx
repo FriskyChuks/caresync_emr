@@ -41,6 +41,22 @@ const ROLE_PERMISSIONS = {
   INVENTORY_MANAGER: ['inventory_manager']
 };
 
+// Color configurations for different menu sections
+const getMenuColors = (label) => {
+  const colorMap = {
+    "Patient Registration": { bg: "bg-indigo-100", icon: "text-indigo-600", hover: "hover:bg-indigo-50", active: "bg-indigo-100 text-indigo-700" },
+    "Clinics": { bg: "bg-teal-100", icon: "text-teal-600", hover: "hover:bg-teal-50", active: "bg-teal-100 text-teal-700" },
+    "Wards": { bg: "bg-blue-100", icon: "text-blue-600", hover: "hover:bg-blue-50", active: "bg-blue-100 text-blue-700" },
+    "Appointments": { bg: "bg-purple-100", icon: "text-purple-600", hover: "hover:bg-purple-50", active: "bg-purple-100 text-purple-700" },
+    "Laboratory": { bg: "bg-cyan-100", icon: "text-cyan-600", hover: "hover:bg-cyan-50", active: "bg-cyan-100 text-cyan-700" },
+    "Radiology": { bg: "bg-rose-100", icon: "text-rose-600", hover: "hover:bg-rose-50", active: "bg-rose-100 text-rose-700" },
+    "Pharmacy": { bg: "bg-emerald-100", icon: "text-emerald-600", hover: "hover:bg-emerald-50", active: "bg-emerald-100 text-emerald-700" },
+    "Billing": { bg: "bg-amber-100", icon: "text-amber-600", hover: "hover:bg-amber-50", active: "bg-amber-100 text-amber-700" },
+    "Admin": { bg: "bg-slate-100", icon: "text-slate-600", hover: "hover:bg-slate-50", active: "bg-slate-100 text-slate-700" }
+  };
+  return colorMap[label] || { bg: "bg-gray-100", icon: "text-gray-600", hover: "hover:bg-gray-50", active: "bg-gray-100 text-gray-700" };
+};
+
 // Menu configuration with role-based access
 const menuConfig = [
   {
@@ -205,8 +221,6 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState({});
 
-  // console.log('user:', user)
-
   // Filter menu items based on user role
   const menuItems = useMemo(() => {
     if (!user) return [];
@@ -216,7 +230,6 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
     const isAdmin = userRole === 'admin' || userRole === 'superuser';
 
     return menuConfig.filter(item => {
-      // Check if user has access to this menu item
       const hasAccess = item.roles.some(roleArray => 
         roleArray.some(role => 
           role === userRole || 
@@ -224,10 +237,8 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
           (isAdmin && role === 'admin')
         )
       );
-
       return hasAccess;
     }).map(item => {
-      // Filter children if they exist
       if (item.children) {
         return {
           ...item,
@@ -244,7 +255,7 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
         };
       }
       return item;
-    }).filter(item => !item.children || item.children.length > 0); // Remove empty parent items
+    }).filter(item => !item.children || item.children.length > 0);
   }, [user]);
 
   const toggleItem = (index) => {
@@ -254,14 +265,12 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
     }));
   };
 
-  // Close mobile sidebar when route changes
   useEffect(() => {
     if (isMobileOpen) {
       onClose();
     }
   }, [location.pathname]);
 
-  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (isMobileOpen) {
       document.body.style.overflow = 'hidden';
@@ -280,7 +289,6 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
@@ -288,17 +296,16 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
         />
       )}
 
-      {/* Sidebar Container - Fixed positioning */}
       <aside className={`
-        fixed top-0 left-0 h-screen ${sidebarWidth} bg-gradient-to-b from-white to-gray-50 
-        border-r border-gray-200 shadow-sm z-40 overflow-hidden flex flex-col
+        fixed top-0 left-0 h-screen ${sidebarWidth} bg-gradient-to-b from-slate-50 to-gray-100
+        border-r border-gray-200 shadow-xl z-40 overflow-hidden flex flex-col
         transform transition-all duration-300 ease-in-out
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        {/* Brand Header with Logo */}
-        <div className="px-4 py-2.5 border-b border-gray-200 flex items-center justify-between">
+        {/* Brand Header with Gradient */}
+        <div className="px-4 py-2.5 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-primary-50 to-indigo-50">
           <Link to="/dashboard" className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-md overflow-hidden flex-shrink-0">
+            <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-500 to-primary-700">
               <img 
                 src="/caresync_logo.PNG" 
                 alt="App Logo" 
@@ -316,39 +323,40 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
             
             {!isCollapsed && (
               <div className="transition-opacity duration-300">
-                <h1 className="text-xl font-bold text-primary-800">CareSync</h1>
-                <p className="text-xs text-gray-500">EMR System</p>
+                <h1 className="text-xl font-extrabold bg-gradient-to-r from-primary-700 to-indigo-700 bg-clip-text text-transparent">
+                  CareSync
+                </h1>
+                <p className="text-xs font-medium text-gray-500">EMR System</p>
               </div>
             )}
           </Link>
           
-          {/* Mobile Close Button */}
           <button
             onClick={onClose}
             className="lg:hidden h-8 w-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-gray-600" />
           </button>
         </div>
 
-        {/* User Profile */}
-        <div className="px-4 py-2.5 border-b border-gray-200">
+        {/* User Profile with Colorful Gradient */}
+        <div className="px-4 py-2.5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
           <div className={`flex ${isCollapsed ? 'justify-center' : 'items-center space-x-3'}`}>
             <div className="relative flex-shrink-0">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center border-2 border-white shadow">
-                <span className="text-white font-semibold text-sm">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-indigo-700 flex items-center justify-center border-2 border-white shadow-md">
+                <span className="text-white font-bold text-sm">
                   {user.first_name?.[0]}{user.last_name?.[0]}
                 </span>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></div>
+              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-white ring-2 ring-green-300"></div>
             </div>
             
             {!isCollapsed && (
               <div className="flex-1 min-w-0 transition-opacity duration-300">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-bold text-gray-800 truncate">
                   {user.first_name} {user.last_name}
                 </h3>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs font-medium text-gray-500 truncate">
                   {user.pharmacy_store_name || user.user_category?.title}
                 </p>
               </div>
@@ -358,20 +366,21 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
           {/* Logout Button - Mobile Only */}
           <button
             onClick={logout}
-            className="lg:hidden mt-4 w-full py-2 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center space-x-2"
+            className="lg:hidden mt-4 w-full py-2 px-4 bg-gradient-to-r from-red-50 to-rose-50 text-red-700 rounded-lg hover:from-red-100 hover:to-rose-100 transition-colors flex items-center justify-center space-x-2"
           >
             <LogOut className="h-4 w-4" />
-            <span className="text-sm font-medium">Logout</span>
+            <span className="text-sm font-semibold">Logout</span>
           </button>
         </div>
 
-        {/* Navigation Menu */}
+        {/* Navigation Menu - Colorful Icons */}
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="px-2 space-y-1">
             {menuItems.map((item, index) => {
               const isActive = location.pathname === item.path;
               const hasChildren = item.children && item.children.length > 0;
               const isExpanded = expandedItems[index];
+              const colors = getMenuColors(item.label);
 
               return (
                 <div key={index} className="mb-1">
@@ -381,23 +390,23 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
                         onClick={() => toggleItem(index)}
                         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 ${
                           isExpanded 
-                            ? 'bg-primary-50 text-primary-700' 
-                            : 'hover:bg-gray-100 text-gray-700 hover:text-gray-900'
+                            ? `${colors.active} shadow-sm` 
+                            : `${colors.hover} text-gray-700`
                         } ${isCollapsed ? 'justify-center' : ''}`}
                         title={isCollapsed ? item.label : ''}
                       >
                         <div className={`flex items-center ${isCollapsed ? '' : 'space-x-3'}`}>
                           <div className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            isExpanded ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'
-                          }`}>
+                            isExpanded ? colors.bg : 'bg-gray-100'
+                          } ${colors.icon}`}>
                             {item.icon}
                           </div>
                           {!isCollapsed && (
-                            <span className="font-medium text-sm">{item.label}</span>
+                            <span className="font-semibold text-sm">{item.label}</span>
                           )}
                         </div>
                         {!isCollapsed && (
-                          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
+                          <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
                             isExpanded ? 'transform rotate-180' : ''
                           }`} />
                         )}
@@ -407,18 +416,21 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
                         <div className="ml-8 mt-1 space-y-1 border-l-2 border-gray-200 pl-3 py-1">
                           {item.children.map((child, childIndex) => {
                             const isChildActive = location.pathname === child.path;
+                            const childColors = getMenuColors(item.label);
                             return (
                               <Link
                                 key={childIndex}
                                 to={child.path}
                                 className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                                   isChildActive
-                                    ? 'bg-primary-50 text-primary-700 font-medium'
-                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                    ? `${childColors.active} font-semibold`
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800 font-medium'
                                 }`}
                                 onClick={onClose}
                               >
-                                <div className="h-5 w-5 flex items-center justify-center">
+                                <div className={`h-5 w-5 flex items-center justify-center ${
+                                  isChildActive ? childColors.icon : 'text-gray-400'
+                                }`}>
                                   {child.icon}
                                 </div>
                                 <span>{child.label}</span>
@@ -433,19 +445,19 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
                       to={item.path}
                       className={`flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 ${
                         isActive
-                          ? 'bg-primary-50 text-primary-700 font-medium shadow-sm'
-                          : 'hover:bg-gray-100 text-gray-700 hover:text-gray-900'
+                          ? `${colors.active} shadow-sm font-semibold`
+                          : `${colors.hover} text-gray-700`
                       } ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
                       onClick={onClose}
                       title={isCollapsed ? item.label : ''}
                     >
                       <div className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        isActive ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                        isActive ? colors.bg : 'bg-gray-100'
+                      } ${colors.icon}`}>
                         {item.icon}
                       </div>
                       {!isCollapsed && (
-                        <span className="font-medium text-sm">{item.label}</span>
+                        <span className="font-semibold text-sm">{item.label}</span>
                       )}
                     </Link>
                   )}
@@ -455,12 +467,12 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
           </nav>
         </div>
 
-        {/* Footer with Logo */}
+        {/* Footer */}
         {!isCollapsed && (
-          <div className="px-4 py-4 border-t border-gray-200">
+          <div className="px-4 py-4 border-t border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <div className="h-6 w-6 rounded overflow-hidden">
+                <div className="h-6 w-6 rounded overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                   <img 
                     src="/logo.png" 
                     alt="App Logo" 
@@ -468,22 +480,22 @@ const Sidebar = ({ isMobileOpen, onClose, isCollapsed = false, onToggleCollapse 
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.parentElement.innerHTML = `
-                        <div class="h-full w-full bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center rounded">
+                        <div class="h-full w-full bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center">
                           <span class="text-white text-xs font-bold">CS</span>
                         </div>
                       `;
                     }}
                   />
                 </div>
-                <div className="text-xs text-gray-500">v1.0.0</div>
+                <div className="text-xs font-medium text-gray-500">v1.0.0</div>
               </div>
-              <div className="text-xs text-gray-500">© {new Date().getFullYear()}</div>
+              <div className="text-xs font-medium text-gray-500">© {new Date().getFullYear()}</div>
             </div>
           </div>
         )}
       </aside>
 
-      {/* Main content padding - Only apply on desktop */}
+      {/* Main content padding */}
       <div className={`hidden lg:block ${sidebarWidth} transition-all duration-300`} />
     </>
   );
