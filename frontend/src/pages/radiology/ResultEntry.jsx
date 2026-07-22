@@ -633,7 +633,7 @@ const ResultEntry = () => {
               </div>
 
               {/* Radiologist Comment Section */}
-              <div className="border-t border-gray-200 pt-3">
+              {/* <div className="border-t border-gray-200 pt-3">
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Radiologist Comment</label>
                 <div className="flex gap-2">
                   <textarea
@@ -653,7 +653,7 @@ const ResultEntry = () => {
                   </button>
                 </div>
                 <p className="mt-1 text-[9px] text-gray-400">Internal note for radiologists/technicians</p>
-              </div>
+              </div> */}
 
               {/* Action Buttons */}
               <div className="flex gap-2 pt-2">

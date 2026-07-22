@@ -82,6 +82,8 @@ const WardDetails = () => {
     }
     return '/assets/images/patients/male-default.jpg';
   };
+  
+  console.log('patients', patients);
 
   // Patient Image Component with actual photos
   const PatientImage = ({ patient, className = "w-12 h-12", showStatus = false }) => {
@@ -506,22 +508,6 @@ const WardDetails = () => {
                                 <span className="text-xs font-medium text-gray-600">{p.age || "—"} yrs</span>
                               </div>
                             </div>
-                            
-                            {/* Transfer Button */}
-                            {hasGender && !hasTransfer && !isRejected && (
-                              <button
-                                onClick={() => {
-                                  setSelectedPatient(p);
-                                  setShowModal(true);
-                                }}
-                                className="p-1.5 text-purple-500 hover:bg-purple-50 rounded-lg transition-colors"
-                                title="Transfer patient"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                </svg>
-                              </button>
-                            )}
                           </div>
 
                           {/* Bed/Room Info */}
@@ -537,6 +523,23 @@ const WardDetails = () => {
                           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                             <div className="flex items-center gap-2">
                               <PatientFolderButton patientId={p.id} className="p-1.5" />
+
+                              {/* Transfer Button */}
+                              {hasGender && !hasTransfer && !isRejected && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedPatient(p);
+                                    setShowModal(true);
+                                  }}
+                                  className="p-1.5 text-purple-500 hover:bg-purple-50 rounded-lg transition-colors"
+                                  title="Transfer patient"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                  </svg>
+                                </button>
+                              )}
+                              {/* Discharge Button */}
                               {p.active_visit && (
                                 <DischargeAction
                                   visit={p.active_visit}

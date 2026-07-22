@@ -372,30 +372,6 @@ const ClinicDetails = () => {
                                 <p className="text-xs text-red-600 mt-0.5 font-medium">Transfer rejected</p>
                               )}
                             </div>
-                            
-                            <div className="flex items-center gap-1">
-                              {/* Transfer Button */}
-                              {hasGender && !hasPendingTransfer ? (
-                                <button
-                                  onClick={() => {
-                                    setSelectedPatient(p);
-                                    setShowModal(true);
-                                  }}
-                                  className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="Transfer patient"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                  </svg>
-                                </button>
-                              ) : !hasGender ? (
-                                <span className="p-1.5 text-amber-500 cursor-help" title="Update gender before transfer">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                </span>
-                              ) : null}
-                            </div>
                           </div>
 
                           {/* Patient Metadata */}
@@ -448,14 +424,38 @@ const ClinicDetails = () => {
                                 </Link>
                               )}
                             </div>
+
+                            <div className="flex items-center gap-1">
+                              {/* Transfer Button */}
+                              {hasGender && !hasPendingTransfer ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedPatient(p);
+                                    setShowModal(true);
+                                  }}
+                                  className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="Transfer patient"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                  </svg>
+                                </button>
+                              ) : !hasGender ? (
+                                <span className="p-1.5 text-amber-500 cursor-help" title="Update gender before transfer">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </span>
+                              ) : null}
+                            </div>
                             
                             {/* Status Indicator & Discharge */}
                             <div className="flex items-center gap-2">
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              {/* <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                 p.active_visit ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
                               }`}>
                                 {p.active_visit ? 'Active' : 'Inactive'}
-                              </span>
+                              </span> */}
                               {p.active_visit && (
                                 <DischargeAction
                                   visit={p.active_visit}

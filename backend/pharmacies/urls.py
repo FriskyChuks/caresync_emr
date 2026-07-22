@@ -82,6 +82,7 @@ urlpatterns = [
     path('patient-prescriptions/', patient_prescriptions_list, name='patient-prescriptions-list'),
     path('patient-prescriptions/<int:patient_id>/', patient_prescriptions_detail, name='patient-prescriptions-detail'),
     path('prescription-details/<int:detail_id>/available-batches/', prescription_detail_available_batches, name='prescription-detail-batches'),
+    path('prescriptions/<int:pk>/billed-items/', prescription_billed_items, name='prescription-billed-items'),
     
     # ========== DASHBOARD (Unchanged) ==========
     path('dashboard/overview/', pharmacy_dashboard_overview, name='pharmacy-dashboard-overview'),

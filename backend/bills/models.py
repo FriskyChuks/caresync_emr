@@ -49,8 +49,8 @@ class Bill(models.Model):
 
     def __str__(self):
         if self.patient:
-            return f"{self.patient} — ₦{self.amount}"
-        return f"Non-patient Bill — ₦{self.amount}"
+            return f"{self.patient} — ₦{self.amount} | {self.date_created.strftime('%Y-%m-%d')}"
+        return f"Non-patient Bill — ₦{self.amount} | {self.date_created.strftime('%Y-%m-%d')}"
 
     # ----------------------------
     # Helpers

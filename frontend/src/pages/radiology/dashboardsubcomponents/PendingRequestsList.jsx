@@ -1,9 +1,9 @@
 // components/radiology/PendingRequestsList.js
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import RequestDetailsModal from './RequestDetailsModal';
 
-const PendingRequestsList = ({ requests, onRefresh }) => {
+const PendingRequestsList = ({ requests, onRefresh, filters, isFiltered = false }) => {
   const navigate = useNavigate();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -118,6 +118,13 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
     return request.details.filter(d => d.status === 'paid' || d.status === 'in_progress').length;
   };
 
+  // Check if a request is from today
+  const isTodayRequest = (dateCreated) => {
+    const today = new Date();
+    const requestDate = new Date(dateCreated);
+    return requestDate.toDateString() === today.toDateString();
+  };
+
   if (requests.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl border border-gray-200">
@@ -126,8 +133,14 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
-        <p className="mt-3 text-sm font-semibold text-gray-700">No pending investigation requests</p>
-        <p className="text-xs text-gray-500">All requests have been processed</p>
+        <p className="mt-3 text-sm font-semibold text-gray-700">
+          {!isFiltered ? 'No pending requests for today' : 'No matching requests found'}
+        </p>
+        <p className="text-xs text-gray-500">
+          {!isFiltered 
+            ? 'New requests will appear here as they are created' 
+            : 'Try adjusting your search filters'}
+        </p>
       </div>
     );
   }
@@ -158,11 +171,12 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
                 const totalCount = request.details_count || 0;
                 const paymentProgress = totalCount > 0 ? (paidCount / totalCount) * 100 : 0;
                 const canEnterResults = shouldShowEnterResult(request);
+                const isToday = isTodayRequest(request.date_created);
                 
                 return (
                   <tr 
                     key={request.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className={`hover:bg-gray-50 transition-colors ${isToday && !isFiltered ? 'bg-blue-50/30' : ''}`}
                   >
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className="text-xs font-mono font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-md">
@@ -233,6 +247,11 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
                       <div className="text-sm">
                         <div className="font-semibold text-gray-700">
                           {new Date(request.date_created).toLocaleDateString()}
+                          {isToday && !isFiltered && (
+                            <span className="ml-1.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded-full">
+                              Today
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-gray-400">
                           {new Date(request.date_created).toLocaleTimeString()}
@@ -242,7 +261,6 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
                     
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        {/* Enter Result Button */}
                         {canEnterResults && (
                           <button
                             onClick={() => handleEnterResult(request.id)}
@@ -255,7 +273,6 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
                           </button>
                         )}
                         
-                        {/* Billing Button */}
                         {shouldShowBilling(request) && (
                           <button
                             onClick={() => handleBilling(request.patient_id)}
@@ -268,7 +285,6 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
                           </button>
                         )}
                         
-                        {/* View Details Button */}
                         <button
                           onClick={() => handleViewDetails(request)}
                           className="p-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-sm"
@@ -289,7 +305,6 @@ const PendingRequestsList = ({ requests, onRefresh }) => {
         </div>
       </div>
 
-      {/* Request Details Modal */}
       <RequestDetailsModal
         request={selectedRequest}
         show={showDetailsModal}

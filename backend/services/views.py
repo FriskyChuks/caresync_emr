@@ -155,7 +155,7 @@ class CheckPatientAccessView(APIView):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_uncompleted_service_requests(request, pid):
-    status_list = ["pending", "billed", "partly_paid", "paid", "in_progress"]
+    status_list = ["pending", "partly_paid", "in_progress"]
     queryset = ServiceRequest.objects.filter(
         status__in=status_list, 
         patient_id=pid

@@ -43,8 +43,8 @@ const ChangePassword = () => {
       setErrorMsg("New password and confirmation do not match.");
       return;
     }
-    if (newPwd.length < 8) {
-      setErrorMsg("New password must be at least 8 characters long.");
+    if (newPwd.length < 7) {
+      setErrorMsg("New password must be at least 7 characters long.");
       return;
     }
 
@@ -145,7 +145,7 @@ const ChangePassword = () => {
               onChange={(e) => setNewPwd(e.target.value)}
               placeholder="Enter your new password"
               disabled={loading}
-              helperText="At least 8 characters with letters and numbers"
+              helperText="At least 7 characters with letters and numbers"
               className="mb-4"
             />
 

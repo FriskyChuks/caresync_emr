@@ -15,6 +15,8 @@ const LabTestRequest = ({ patient, onSuccess }) => {
   const [selectedItems, setSelectedItems] = useState({});
   const [loading, setLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -25,7 +27,10 @@ const LabTestRequest = ({ patient, onSuccess }) => {
       ]);
       setUnits(unitsRes.data || []);
       setTests(testsRes.data || []);
-      if ((unitsRes.data || []).length > 0) setSelectedUnit(unitsRes.data[0].id);
+      // Default to first unit (not "all")
+      if ((unitsRes.data || []).length > 0) {
+        setSelectedUnit(unitsRes.data[0].id);
+      }
     } catch (err) {
       console.error("Error fetching lab data", err);
       showMessage("Failed to fetch lab units or tests.", "danger");
@@ -154,6 +159,8 @@ const LabTestRequest = ({ patient, onSuccess }) => {
       await axiosInstance.post("/labapi/test-requests/create/", payload);
       showMessage("Lab test request submitted successfully!", "success");
       setSelectedItems({});
+      setSearchTerm("");
+      setIsSearchActive(false);
       setShowConfirm(false);
       if (typeof onSuccess === "function") onSuccess();
     } catch (err) {
@@ -169,6 +176,79 @@ const LabTestRequest = ({ patient, onSuccess }) => {
         showMessage("Submission failed: Could not connect to server.", "danger");
       }
     }
+  };
+
+  // Handle search input change
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    if (value.trim().length > 0) {
+      setIsSearchActive(true);
+      // When searching, switch to "all" to show results from all units
+      if (selectedUnit !== "all") {
+        setSelectedUnit("all");
+      }
+    } else {
+      setIsSearchActive(false);
+      // When clearing search, go back to the first unit
+      if (units.length > 0) {
+        setSelectedUnit(units[0].id);
+      }
+    }
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
+    setIsSearchActive(false);
+    if (units.length > 0) {
+      setSelectedUnit(units[0].id);
+    }
+  };
+
+  // Handle unit change
+  const handleUnitChange = (unitId) => {
+    if (unitId === "all" && searchTerm === "") {
+      // Don't allow switching to "All" tab when no search is active
+      showMessage("Use the search bar to see tests across all units", "info");
+      return;
+    }
+    setSelectedUnit(unitId);
+    // Clear search when switching to a specific unit
+    if (unitId !== "all" && searchTerm) {
+      setSearchTerm("");
+      setIsSearchActive(false);
+    }
+  };
+
+  // Filter tests based on selected unit AND search term
+  const getFilteredTests = () => {
+    let filtered = tests;
+    
+    // Filter by selected unit (only if not "all")
+    if (selectedUnit !== "all") {
+      filtered = filtered.filter(t => t.lab_unit === selectedUnit);
+    }
+    
+    // Filter by search term (across all tests)
+    if (searchTerm) {
+      filtered = filtered.filter(t => 
+        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (t.sub_tests && t.sub_tests.some(st => 
+          st.parameter_name.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
+      );
+    }
+    
+    return filtered;
+  };
+
+  const filteredTests = getFilteredTests();
+
+  // Get unit name for display
+  const getSelectedUnitName = () => {
+    if (selectedUnit === "all") return "All Units (Search Results)";
+    const unit = units.find(u => u.id === selectedUnit);
+    return unit?.name || "Unknown";
   };
 
   if (loading) {
@@ -189,8 +269,6 @@ const LabTestRequest = ({ patient, onSuccess }) => {
       </div>
     );
   }
-
-  const filteredTests = tests.filter(t => t.lab_unit === selectedUnit);
 
   return (
     <div className="space-y-3">
@@ -217,11 +295,27 @@ const LabTestRequest = ({ patient, onSuccess }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        {/* Left - Unit Tabs */}
+        {/* Left - Unit Tabs & Search */}
         <div className="lg:col-span-2 space-y-3">
+          {/* Unit Tabs - "All" tab only visible during search */}
           <div className="bg-gradient-to-br from-white to-blue-50 rounded-lg border border-blue-100 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-2 border-b border-blue-200">
               <div className="flex flex-wrap gap-1.5">
+                {/* "All" Tab - Only visible when search is active */}
+                {isSearchActive && (
+                  <button
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+                      selectedUnit === "all"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm"
+                        : "bg-white text-gray-700 border border-gray-300 hover:border-purple-300 hover:text-purple-600"
+                    }`}
+                    onClick={() => setSelectedUnit("all")}
+                  >
+                    🔍 Search Results
+                  </button>
+                )}
+                
+                {/* Individual Unit Tabs */}
                 {units.length === 0 ? (
                   <span className="text-gray-500 text-sm">No units found</span>
                 ) : (
@@ -229,19 +323,76 @@ const LabTestRequest = ({ patient, onSuccess }) => {
                     <button
                       key={u.id}
                       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
-                        selectedUnit === u.id
+                        selectedUnit === u.id && !isSearchActive
                           ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-sm"
+                          : selectedUnit === u.id && isSearchActive
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
                           : "bg-white text-gray-700 border border-gray-300 hover:border-blue-300 hover:text-blue-600"
                       }`}
-                      onClick={() => setSelectedUnit(u.id)}
+                      onClick={() => handleUnitChange(u.id)}
+                      disabled={isSearchActive}
                     >
                       {u.name}
+                      {isSearchActive && selectedUnit === u.id && (
+                        <span className="ml-1 text-[10px]">(disabled)</span>
+                      )}
                     </button>
                   ))
                 )}
               </div>
             </div>
 
+            {/* Search Bar */}
+            <div className="p-3 border-b border-gray-100 bg-white">
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  className="w-full pl-9 pr-10 py-2 text-sm border border-gray-200 rounded-lg focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors placeholder:text-gray-400"
+                  placeholder="Search investigations across all units..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              
+              {/* Search Results Summary */}
+              {searchTerm && (
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="text-xs text-blue-600">
+                    <span className="font-medium">Found {filteredTests.length}</span> test{filteredTests.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                  </div>
+                  <button 
+                    onClick={clearSearch}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )}
+              
+              {/* Current Unit Indicator */}
+              {!searchTerm && (
+                <div className="mt-2 text-xs text-gray-500">
+                  Showing tests from <span className="font-medium text-blue-600">{getSelectedUnitName()}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Tests List */}
             <div className="p-3">
               {filteredTests.length === 0 ? (
                 <div className="text-center py-4">
@@ -250,78 +401,111 @@ const LabTestRequest = ({ patient, onSuccess }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-500">No tests available in this unit</p>
+                  <p className="text-sm text-gray-500">
+                    {searchTerm 
+                      ? `No tests found matching "${searchTerm}"` 
+                      : `No tests available in ${getSelectedUnitName()}`}
+                  </p>
+                  {searchTerm && (
+                    <button 
+                      onClick={clearSearch}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear search
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {filteredTests.map((test) => (
-                    <div key={test.id} className="group">
-                      <div className={`bg-white border rounded-lg p-3 hover:shadow-md transition-all duration-200 ${
-                        selectedItems[`test-${test.id}`] 
-                          ? 'border-blue-300 bg-blue-50/50' 
-                          : 'border-gray-200 hover:border-blue-200'
-                      }`}>
-                        <div className="flex items-start gap-2">
-                          <input
-                            type="checkbox"
-                            className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
-                            checked={!!selectedItems[`test-${test.id}`]}
-                            onChange={() => toggleSelection("test", null, test)}
-                            id={`test-${test.id}`}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <label 
-                              htmlFor={`test-${test.id}`} 
-                              className="text-sm font-semibold text-gray-800 cursor-pointer flex items-center justify-between"
-                            >
-                              <span className="truncate">{test.name}</span>
-                              <span className="ml-2">
-                                <PriceFormat amount={test.price} />
-                              </span>
-                            </label>
-                            <div className="flex items-center gap-2 mt-1">
-                              {test.is_complex && (
-                                <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 text-xs rounded">
-                                  Complex Panel
+                  {filteredTests.map((test) => {
+                    // Get unit name for display
+                    const testUnit = units.find(u => u.id === test.lab_unit);
+                    return (
+                      <div key={test.id} className="group">
+                        <div className={`bg-white border rounded-lg p-3 hover:shadow-md transition-all duration-200 ${
+                          selectedItems[`test-${test.id}`] 
+                            ? 'border-blue-300 bg-blue-50/50' 
+                            : 'border-gray-200 hover:border-blue-200'
+                        }`}>
+                          <div className="flex items-start gap-2">
+                            <input
+                              type="checkbox"
+                              className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                              checked={!!selectedItems[`test-${test.id}`]}
+                              onChange={() => toggleSelection("test", null, test)}
+                              id={`test-${test.id}`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <label 
+                                htmlFor={`test-${test.id}`} 
+                                className="text-sm font-semibold text-gray-800 cursor-pointer flex items-center justify-between"
+                              >
+                                <span className="truncate">{test.name}</span>
+                                <span className="ml-2 flex-shrink-0">
+                                  <PriceFormat amount={test.price} />
                                 </span>
-                              )}
-                              {test.sub_tests?.length > 0 && (
-                                <span className="text-xs text-gray-500">
-                                  {test.sub_tests.length} parameters
-                                </span>
+                              </label>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                {test.is_complex && (
+                                  <span className="px-1.5 py-0.5 bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 text-xs rounded">
+                                    Complex Panel
+                                  </span>
+                                )}
+                                {test.sub_tests?.length > 0 && (
+                                  <span className="text-xs text-gray-500">
+                                    {test.sub_tests.length} parameters
+                                  </span>
+                                )}
+                                {/* Show unit badge for search results */}
+                                {searchTerm && testUnit && (
+                                  <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded">
+                                    {testUnit.name}
+                                  </span>
+                                )}
+                              </div>
+                              {/* Highlight search match */}
+                              {searchTerm && test.name.toLowerCase().includes(searchTerm.toLowerCase()) && (
+                                <div className="mt-1 text-[10px] text-blue-600">
+                                  🔍 Matches search
+                                </div>
                               )}
                             </div>
                           </div>
-                        </div>
 
-                        {/* Subtests */}
-                        {test.is_complex && selectedItems[`test-${test.id}`] && test.sub_tests.length > 0 && (
-                          <div className="mt-2 pl-6 space-y-1.5 border-l border-blue-200">
-                            {test.sub_tests.map((st) => (
-                              <div key={st.id} className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded"
-                                  checked={!!selectedItems[`subtest-${st.id}`]}
-                                  onChange={() => toggleSelection("subtest", test.id, st)}
-                                  id={`subtest-${st.id}`}
-                                />
-                                <label 
-                                  htmlFor={`subtest-${st.id}`} 
-                                  className="text-xs text-gray-700 cursor-pointer flex-1 flex items-center justify-between"
-                                >
-                                  <span className="truncate">{st.parameter_name}</span>
-                                  <span className="text-emerald-600 font-medium ml-2">
-                                    ₦{Number(st.price || 0).toFixed(2)}
-                                  </span>
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                          {/* Subtests */}
+                          {test.is_complex && selectedItems[`test-${test.id}`] && test.sub_tests.length > 0 && (
+                            <div className="mt-2 pl-6 space-y-1.5 border-l border-blue-200">
+                              {test.sub_tests.map((st) => (
+                                <div key={st.id} className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded"
+                                    checked={!!selectedItems[`subtest-${st.id}`]}
+                                    onChange={() => toggleSelection("subtest", test.id, st)}
+                                    id={`subtest-${st.id}`}
+                                  />
+                                  <label 
+                                    htmlFor={`subtest-${st.id}`} 
+                                    className="text-xs text-gray-700 cursor-pointer flex-1 flex items-center justify-between"
+                                  >
+                                    <span className={`truncate ${searchTerm && st.parameter_name.toLowerCase().includes(searchTerm.toLowerCase()) ? 'font-semibold text-blue-700' : ''}`}>
+                                      {st.parameter_name}
+                                      {searchTerm && st.parameter_name.toLowerCase().includes(searchTerm.toLowerCase()) && (
+                                        <span className="ml-1 text-[9px] text-blue-500">(matched)</span>
+                                      )}
+                                    </span>
+                                    <span className="text-emerald-600 font-medium ml-2 flex-shrink-0">
+                                      ₦{Number(st.price || 0).toFixed(2)}
+                                    </span>
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

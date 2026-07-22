@@ -188,7 +188,7 @@ const PrescriptionSheet = ({ patient, onPrescriptionSuccess }) => {
     setFilteredProducts([]);
     setShowDropdown(false);
     setFormErrors({});
-    showMessage('Medication added', 'success');
+    // showMessage('Medication added', 'success');
   };
 
   const handleRemoveItem = (index) => {

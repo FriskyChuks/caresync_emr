@@ -393,7 +393,7 @@ class PendingInvestigationRequestsView(generics.ListAPIView):
 
     def get_queryset(self):
         return InvestigationRequest.objects.filter(
-            status__in=['pending', 'in_progress', 'billed', 'partly_billed', 'partly_paid', 'paid']
+            status__in=['pending', 'in_progress', 'billed', 'partly_billed', 'paid', 'partly_paid']
         ).select_related(
             'patient', 'patient__user', 'created_by'
         ).prefetch_related(

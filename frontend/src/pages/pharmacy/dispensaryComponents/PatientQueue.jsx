@@ -1,5 +1,5 @@
-// dispensaryComponents/PatientQueue.jsx - Updated with purple/pink colors
-import React from 'react';
+// dispensaryComponents/PatientQueue.jsx - Show today's prescriptions only, search for older
+import React, { useMemo } from 'react';
 
 const PatientQueue = ({ 
   patients, 
@@ -39,12 +39,12 @@ const PatientQueue = ({
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'paid': return 'bg-emerald-100 text-emerald-700';
-      case 'billed': return 'bg-amber-100 text-amber-700';
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'billed': return 'bg-yellow-100 text-yellow-700';
       case 'in_progress': return 'bg-blue-100 text-blue-700';
       case 'pending': return 'bg-gray-100 text-gray-700';
       case 'dispensed': return 'bg-purple-100 text-purple-700';
-      case 'partly_paid': return 'bg-yellow-100 text-yellow-700';
+      case 'partly_paid': return 'bg-amber-100 text-amber-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -56,20 +56,45 @@ const PatientQueue = ({
     { value: 'pending', label: 'Pending', icon: '⚪' }
   ];
 
-  // Filter patients by search term
-  const filteredPatients = patients.filter(patient => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (patient.name?.toLowerCase().includes(searchLower) ||
-            patient.hospital_number?.toLowerCase().includes(searchLower) ||
-            patient.phone?.toLowerCase().includes(searchLower));
-  });
+  // Get today's date (start of day)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Filter patients based on search term and date
+  const filteredPatients = useMemo(() => {
+    let filtered = [...patients];
+    
+    // If there's a search term, show all matching patients (including older ones)
+    if (searchTerm && searchTerm.trim().length > 0) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(patient => {
+        return (patient.name?.toLowerCase().includes(searchLower) ||
+                patient.hospital_number?.toLowerCase().includes(searchLower) ||
+                patient.phone?.toLowerCase().includes(searchLower));
+      });
+    } else {
+      // No search term - only show patients with prescriptions from today
+      filtered = filtered.filter(patient => {
+        // Check if patient has any prescription from today
+        return patient.prescriptions?.some(rx => {
+          const rxDate = new Date(rx.date_prescribed);
+          rxDate.setHours(0, 0, 0, 0);
+          return rxDate.getTime() === today.getTime();
+        });
+      });
+    }
+    
+    return filtered;
+  }, [patients, searchTerm, today]);
 
   const patientsList = Array.isArray(filteredPatients) ? filteredPatients : [];
 
+  // Check if search is active
+  const isSearchActive = searchTerm && searchTerm.trim().length > 0;
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm h-full flex flex-col">
-      {/* Header - Updated to purple gradient */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-2 border-b">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
@@ -77,6 +102,16 @@ const PatientQueue = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             Queue ({patientsList.length})
+            {isSearchActive && (
+              <span className="text-xs font-normal text-gray-400 ml-1">
+                (search results)
+              </span>
+            )}
+            {!isSearchActive && (
+              <span className="text-xs font-normal text-gray-400 ml-1">
+                (today only)
+              </span>
+            )}
           </h3>
         </div>
       </div>
@@ -97,9 +132,14 @@ const PatientQueue = ({
             className="w-full pl-7 pr-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
           />
         </div>
+        {isSearchActive && (
+          <div className="text-xs text-gray-400 mt-1 ml-1">
+            Showing results for "{searchTerm}"
+          </div>
+        )}
       </div>
 
-      {/* Filter Tabs - Updated active color */}
+      {/* Filter Tabs */}
       <div className="flex gap-1 p-2 border-b bg-gray-50">
         {filters.map(filter => (
           <button
@@ -129,7 +169,14 @@ const PatientQueue = ({
             <svg className="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <p className="text-xs text-gray-500">No patients found</p>
+            <p className="text-xs text-gray-500">
+              {isSearchActive ? 'No patients found matching your search' : 'No prescriptions for today'}
+            </p>
+            {!isSearchActive && (
+              <p className="text-xs text-gray-400 mt-1">
+                Try searching for a patient name or ID
+              </p>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
@@ -137,21 +184,28 @@ const PatientQueue = ({
               const isSelected = selectedPatient?.id === patient.id;
               const totalItems = patient.prescriptions?.reduce((total, rx) => total + (rx.details?.length || 0), 0) || 0;
               
+              // Check if prescription is from today (for highlighting)
+              const hasTodayRx = patient.prescriptions?.some(rx => {
+                const rxDate = new Date(rx.date_prescribed);
+                rxDate.setHours(0, 0, 0, 0);
+                return rxDate.getTime() === today.getTime();
+              });
+              
               return (
                 <div
-                    key={patient.id}
-                    onClick={() => {
-                      console.log('Patient clicked:', patient.id);
-                      if (patient.id && onSelectPatient) {
-                        onSelectPatient(patient.id);
-                      }
-                    }}
-                    className={`p-2 cursor-pointer transition-all ${
-                      selectedPatient?.id === patient.id 
-                        ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
+                  key={patient.id}
+                  onClick={() => {
+                    console.log('Patient clicked:', patient.id);
+                    if (patient.id && onSelectPatient) {
+                      onSelectPatient(patient.id);
+                    }
+                  }}
+                  className={`p-2 cursor-pointer transition-all ${
+                    selectedPatient?.id === patient.id 
+                      ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500' 
+                      : 'hover:bg-gray-50'
+                  } ${hasTodayRx && !isSearchActive ? 'bg-white' : ''}`}
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
@@ -159,9 +213,14 @@ const PatientQueue = ({
                         <div className="font-medium text-gray-800 text-sm truncate">
                           {patient.name || 'Unknown'}
                         </div>
+                        {!hasTodayRx && isSearchActive && (
+                          <span className="text-[10px] text-gray-400 bg-gray-100 px-1 py-0.5 rounded">
+                            older
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-gray-500 ml-5">
-                        PID: {patient.hospital_number}
+                        HN: {patient.hospital_number}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-2">
@@ -186,7 +245,11 @@ const PatientQueue = ({
       {/* Footer */}
       <div className="border-t px-3 py-1.5 bg-gray-50">
         <div className="text-xs text-gray-400 text-center">
-          Last 30 days • Max 50 patients
+          {isSearchActive ? (
+            'Search results include all dates'
+          ) : (
+            'Today\'s prescriptions • Max 50 patients'
+          )}
         </div>
       </div>
     </div>

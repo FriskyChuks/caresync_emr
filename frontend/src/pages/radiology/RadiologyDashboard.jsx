@@ -9,19 +9,67 @@ import DashboardFilters from './dashboardsubcomponents/DashboardFilters';
 const RadiologyDashboard = () => {
   const { showMessage } = useMessage();
   
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [results, setResults] = useState([]);
+  const [allPendingRequests, setAllPendingRequests] = useState([]);
+  const [allResults, setAllResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Filter states
+  // Helper function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Filter states - initialized with today's date for default view
   const [filters, setFilters] = useState({
     patientSearch: '',
-    dateFrom: '',
-    dateTo: '',
+    dateFrom: getTodayDate(),
+    dateTo: getTodayDate(),
     status: '',
     urgency: ''
   });
+
+  // Handle date preset selection
+  const handleDatePreset = (preset) => {
+    const today = new Date();
+    let dateFrom = '';
+    let dateTo = getTodayDate();
+    
+    switch(preset) {
+      case 'today':
+        dateFrom = getTodayDate();
+        dateTo = getTodayDate();
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        dateFrom = yesterday.toISOString().split('T')[0];
+        dateTo = dateFrom;
+        break;
+      case 'last7':
+        const last7 = new Date(today);
+        last7.setDate(last7.getDate() - 7);
+        dateFrom = last7.toISOString().split('T')[0];
+        break;
+      case 'last30':
+        const last30 = new Date(today);
+        last30.setDate(last30.getDate() - 30);
+        dateFrom = last30.toISOString().split('T')[0];
+        break;
+      case 'month':
+        dateFrom = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        break;
+      default:
+        return;
+    }
+    
+    setFilters(prev => ({ 
+      ...prev, 
+      dateFrom, 
+      dateTo 
+    }));
+  };
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -32,13 +80,14 @@ const RadiologyDashboard = () => {
         axiosInstance.get('/radiologyapi/results/')
       ]);
       
-      setPendingRequests(pendingRes.data || []);
-      setResults(resultsRes.data || []);
+      setAllPendingRequests(pendingRes.data || []);
+      setAllResults(resultsRes.data || []);
     } catch (err) {
       console.error('Error fetching dashboard data', err);
       showMessage('Failed to load dashboard data', 'danger');
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
   }, [showMessage]);
 
@@ -46,47 +95,79 @@ const RadiologyDashboard = () => {
     fetchData();
   }, [fetchData]);
 
-  // Enhanced filtering function
-  const filterItems = (items, isPendingTab = true) => {
-    return items.filter(item => {
-      const patientName = item.patient_name?.toLowerCase() || '';
-      const patientId = item.patient_id?.toString().toLowerCase() || '';
+  // Filter function for pending requests - this determines what gets passed to the list
+  const getFilteredPendingRequests = () => {
+    let filtered = [...allPendingRequests];
+    
+    // Apply patient search filter
+    if (filters.patientSearch) {
       const searchTerm = filters.patientSearch.toLowerCase();
-      
-      if (filters.patientSearch && 
-          !patientName.includes(searchTerm) && 
-          !patientId.includes(searchTerm)) {
-        return false;
-      }
-      
-      if (isPendingTab && filters.status && item.status !== filters.status) {
-        return false;
-      }
-      
-      if (filters.urgency && item.urgency !== filters.urgency) {
-        return false;
-      }
-      
-      const itemDate = new Date(item.date_created);
-      
-      if (filters.dateFrom && itemDate < new Date(filters.dateFrom)) {
-        return false;
-      }
-      
-      if (filters.dateTo) {
-        const toDate = new Date(filters.dateTo);
-        toDate.setHours(23, 59, 59, 999);
-        if (itemDate > toDate) {
-          return false;
-        }
-      }
-      
-      return true;
-    });
+      filtered = filtered.filter(item => 
+        item.patient_name?.toLowerCase().includes(searchTerm) ||
+        item.patient_id?.toString().toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Apply status filter
+    if (filters.status) {
+      filtered = filtered.filter(item => item.status === filters.status);
+    }
+    
+    // Apply urgency filter
+    if (filters.urgency) {
+      filtered = filtered.filter(item => item.urgency === filters.urgency);
+    }
+    
+    // Apply date range filters - This ensures only current day shows by default
+    if (filters.dateFrom) {
+      const fromDate = new Date(filters.dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(item => new Date(item.date_created) >= fromDate);
+    }
+    
+    if (filters.dateTo) {
+      const toDate = new Date(filters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(item => new Date(item.date_created) <= toDate);
+    }
+    
+    // Sort by date_created (most recent first)
+    filtered.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    
+    return filtered;
   };
 
-  const filteredPendingRequests = filterItems(pendingRequests, true);
-  const filteredResults = filterItems(results, false);
+  // Filter function for results
+  const getFilteredResults = () => {
+    let filtered = [...allResults];
+    
+    if (filters.patientSearch) {
+      const searchTerm = filters.patientSearch.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.patient_name?.toLowerCase().includes(searchTerm) ||
+        item.patient_id?.toString().toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    if (filters.dateFrom) {
+      const fromDate = new Date(filters.dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter(item => new Date(item.date_created) >= fromDate);
+    }
+    
+    if (filters.dateTo) {
+      const toDate = new Date(filters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(item => new Date(item.date_created) <= toDate);
+    }
+    
+    filtered.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    
+    return filtered;
+  };
+
+  const filteredPendingRequests = getFilteredPendingRequests();
+  const filteredResults = getFilteredResults();
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -96,20 +177,28 @@ const RadiologyDashboard = () => {
     fetchData();
   };
 
+  // Check if any additional filters are active beyond the default date range
+  const hasActiveFilters = () => {
+    const today = getTodayDate();
+    return filters.patientSearch || 
+           filters.status || 
+           filters.urgency ||
+           (filters.dateFrom && filters.dateFrom !== today) ||
+           (filters.dateTo && filters.dateTo !== today);
+  };
+
   return (
     <div className="">
       {/* Main Card with Glassmorphism Effect */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
         {/* Animated Gradient Header */}
         <div className="relative px-4 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 overflow-hidden">
-          {/* Animated background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute -inset-[100%] animate-pulse bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
           </div>
           
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {/* Animated Icon Container */}
               <div className="relative">
                 <div className="absolute inset-0 bg-white/30 rounded-lg blur-sm animate-pulse"></div>
                 <div className="relative p-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
@@ -125,7 +214,6 @@ const RadiologyDashboard = () => {
               </div>
             </div>
             
-            {/* Premium Refresh Button */}
             <button 
               onClick={handleRefresh}
               disabled={loading}
@@ -141,26 +229,61 @@ const RadiologyDashboard = () => {
             </button>
           </div>
 
-          {/* Decorative Elements */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
         </div>
 
         <div className="p-4">
-          {/* Filters with Enhanced Styling */}
+          {/* Filters */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-xl blur-xl"></div>
             <div className="relative">
               <DashboardFilters 
                 filters={filters}
                 onFilterChange={handleFilterChange}
+                onDatePreset={handleDatePreset}
               />
             </div>
+          </div>
+
+          {/* Date Range Indicator */}
+          <div className="mt-3 flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              {filters.dateFrom === filters.dateTo && filters.dateFrom ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  Showing requests from <span className="font-semibold text-gray-700">{filters.dateFrom}</span>
+                </span>
+              ) : filters.dateFrom && filters.dateTo ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  Showing requests from <span className="font-semibold text-gray-700">{filters.dateFrom}</span> to <span className="font-semibold text-gray-700">{filters.dateTo}</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                  Showing all requests
+                </span>
+              )}
+            </div>
+            {hasActiveFilters() && (
+              <button
+                onClick={() => setFilters({
+                  patientSearch: '',
+                  dateFrom: getTodayDate(),
+                  dateTo: getTodayDate(),
+                  status: '',
+                  urgency: ''
+                })}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Reset to Today
+              </button>
+            )}
           </div>
 
           {/* Premium Tabs */}
           <div className="mt-4">
             <div className="relative">
-              {/* Background Decor */}
               <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl blur-sm"></div>
               
               <div className="relative flex p-1 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/60 shadow-inner">
@@ -219,10 +342,9 @@ const RadiologyDashboard = () => {
             </div>
           </div>
 
-          {/* Content with Enhanced Loading State */}
+          {/* Content */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-8">
-              {/* Premium Pulse Animation */}
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-xl animate-pulse"></div>
                 <div className="relative flex gap-1">
@@ -244,6 +366,8 @@ const RadiologyDashboard = () => {
                   <PendingRequestsList 
                     requests={filteredPendingRequests}
                     onRefresh={fetchData}
+                    filters={filters}
+                    isFiltered={hasActiveFilters()}
                   />
                 </div>
               )}
@@ -261,7 +385,6 @@ const RadiologyDashboard = () => {
         </div>
       </div>
 
-      {/* Add custom animations to your global CSS or Tailwind config */}
       <style jsx>{`
         @keyframes gradient-x {
           0%, 100% { background-position: 0% 50%; }

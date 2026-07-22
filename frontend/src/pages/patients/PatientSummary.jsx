@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { useMessage } from '../../context/MessageProvider';
+import useAuth from "../../hooks/useAuth";
 import SendPatientModal from "../encounters/SendPatientModal";
 import ScheduleAppointmentModal from "../appointments/ScheduleAppointmentModal";
 import DischargeAction from "../encounters/discharge/DischargeAction";
+import PatientHandCard from "./PatientHandCard";
 
 // Reusable info block with beautiful styling
 const InfoBlock = ({ icon, label, value, className = "", iconClassName = "" }) =>
@@ -40,13 +42,30 @@ const StatusBadge = ({ status, children, className = "" }) => {
 };
 
 // Patient Profile Card Component
-const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) => {
+const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess, onPrintHandCard, userRole }) => {
   if (!patient) return null;
 
   console.log("Rendering PatientProfileCard with patient data:", patient);
 
   const { user_info, date_of_birth, age, status, phone, email, gender, marital_status, 
     occupation, date_created, created_by, registered_by, active_visit, photo_url } = patient;
+
+  // Check if user can see discharge action
+  const userRoleLower = userRole?.toLowerCase() || '';
+  const canSeeDischargeAction = ['doctor', 'nurse', 'him', 'records'].includes(userRoleLower);
+  
+  // HIM/Records can only see discharge for outpatients (clinic visits, not inpatient wards)
+  const isHIM = userRoleLower === 'him' || userRoleLower === 'records';
+  const isInpatient = active_visit?.is_inpatient === true;
+  const isOutpatient = active_visit && !isInpatient;
+  
+  // Determine if discharge action should be shown
+  const shouldShowDischargeAction = canSeeDischargeAction && active_visit && (
+    // For doctors and nurses - show for both inpatient and outpatient
+    (!isHIM && active_visit) ||
+    // For HIM/Records - only show for outpatients (clinic visits)
+    (isHIM && isOutpatient)
+  );
 
   // Format date
   const formatDate = (dateString) => {
@@ -225,7 +244,8 @@ const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) 
                             </Link>
                           </div>
                           
-                          {active_visit.is_inpatient && (
+                          {/* Discharge Action - Only for doctors and nurses (not HIM for inpatients) */}
+                          {shouldShowDischargeAction && !isHIM && (
                             <div className="mt-2">
                               <DischargeAction 
                                 visit={active_visit} 
@@ -253,12 +273,17 @@ const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) 
                             </Link>
                           </div>
                           
-                          <div className="mt-2">
-                            <DischargeAction 
-                              visit={active_visit} 
-                              onSuccess={onDischargeSuccess}
-                            />
-                          </div>
+                          {/* Discharge Action - For outpatients: 
+                              - HIM/Records can see (for discharge processing)
+                              - Doctors and nurses can also see */}
+                          {shouldShowDischargeAction && (
+                            <div className="mt-2">
+                              <DischargeAction 
+                                visit={active_visit} 
+                                onSuccess={onDischargeSuccess}
+                              />
+                            </div>
+                          )}
                         </div>
                       )
                     ) : (
@@ -291,23 +316,26 @@ const PatientProfileCard = ({ patient, onBookAppointment, onDischargeSuccess }) 
                       <span className="text-xs font-medium text-gray-700">Book Appointment</span>
                     </button>
                     
-                    <Link 
-                      to="/patient-registration"
-                      className="group flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:border-purple-300 hover:shadow transition-all duration-300"
+                    <button 
+                      onClick={onPrintHandCard}
+                      className="group flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 hover:border-indigo-300 hover:shadow transition-all duration-300"
                     >
-                      <span className="text-purple-600 mb-1.5 group-hover:scale-110 transition-transform">👤</span>
-                      <span className="text-xs font-medium text-gray-700">New Registration</span>
-                    </Link>
+                      <span className="text-indigo-600 mb-1.5 group-hover:scale-110 transition-transform">🖨️</span>
+                      <span className="text-xs font-medium text-gray-700">Print Card</span>
+                    </button>
                     
                     <Link to={`/patient-update/${patient.id}`} className="group flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200 hover:border-amber-300 hover:shadow transition-all duration-300">
                       <span className="text-amber-600 mb-1.5 group-hover:scale-110 transition-transform">📝</span>
                       <span className="text-xs font-medium text-gray-700">Update Record</span>
                     </Link>
                     
-                    <button className="group flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200 hover:border-emerald-300 hover:shadow transition-all duration-300">
-                      <span className="text-emerald-600 mb-1.5 group-hover:scale-110 transition-transform">📋</span>
-                      <span className="text-xs font-medium text-gray-700">View History</span>
-                    </button>
+                    <Link 
+                      to="/patient-registration"
+                      className="group flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:border-purple-300 hover:shadow transition-all duration-300"
+                    >
+                      <span className="text-purple-600 mb-1.5 group-hover:scale-110 transition-transform">👤</span>
+                      <span className="text-xs font-medium text-gray-700">New Patient</span>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -481,6 +509,7 @@ const ContactInfoSection = ({ residential, permanent, kin }) => {
 // Main PatientSummary Component
 const PatientSummary = ({ data: initialData }) => {
   const { showMessage } = useMessage();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { patientId } = useParams();
   const location = useLocation();
@@ -490,6 +519,7 @@ const PatientSummary = ({ data: initialData }) => {
   const [error, setError] = useState(null);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [showHandCard, setShowHandCard] = useState(false);
 
   const noActiveLocation = !data?.active_visit;
   const inClinic = !!data?.active_visit?.current_location?.clinic_id;
@@ -513,6 +543,10 @@ const PatientSummary = ({ data: initialData }) => {
 
   const handleBookAppointment = () => {
     setShowAppointmentModal(true);
+  };
+
+  const handlePrintHandCard = () => {
+    setShowHandCard(true);
   };
 
   const handleAppointmentScheduled = () => {
@@ -609,6 +643,7 @@ const PatientSummary = ({ data: initialData }) => {
   }
 
   const { residential_address_data, permanent_address_data, next_of_kin_data } = data;
+  const userRole = user?.user_category?.title || '';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-3 md:p-4">
@@ -624,7 +659,16 @@ const PatientSummary = ({ data: initialData }) => {
             </p>
           </div>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrintHandCard}
+              className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-medium rounded-lg hover:shadow-md transition-all flex items-center gap-1.5"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print Card
+            </button>
             <div className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
               <span className="text-xs font-medium text-blue-700">
                 Updated: {new Date(data.date_created).toLocaleDateString()}
@@ -640,6 +684,8 @@ const PatientSummary = ({ data: initialData }) => {
           patient={data} 
           onBookAppointment={handleBookAppointment}
           onDischargeSuccess={handleDischargeSuccess}
+          onPrintHandCard={handlePrintHandCard}
+          userRole={userRole}
         />
 
         {/* Action Buttons */}
@@ -751,6 +797,17 @@ const PatientSummary = ({ data: initialData }) => {
           onClose={() => setShowAppointmentModal(false)}
           onAppointmentScheduled={handleAppointmentScheduled}
           preSelectedPatient={data}
+        />
+      )}
+
+      {/* Patient Hand Card Modal */}
+      {showHandCard && (
+        <PatientHandCard
+          patient={data}
+          onClose={() => setShowHandCard(false)}
+          onPrint={() => {
+            showMessage("Card saved successfully!", "success");
+          }}
         />
       )}
 

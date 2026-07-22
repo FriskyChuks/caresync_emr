@@ -1,5 +1,6 @@
-// dispensaryComponents/DispensaryDetail.jsx - Updated with purple/pink colors
-import React, { useState, useEffect, useRef } from 'react';
+// dispensaryComponents/DispensaryDetail.jsx - Complete with auto-refresh after dispensing
+
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../../api/axiosInstance';
 import { useMessage } from '../../../context/MessageProvider';
 import PaymentStatusBadge from './PaymentStatusBadge';
@@ -27,39 +28,70 @@ const DispensaryDetail = ({
   const [pollingActive, setPollingActive] = useState(false);
   const [patientPrescriptions, setPatientPrescriptions] = useState([]);
   const [includedItems, setIncludedItems] = useState({});
-  
-  const savedSelectionsRef = useRef({});
-  const savedQuantitiesRef = useRef({});
-  const savedIncludedItemsRef = useRef({});
 
+  // Load billed items from PrescriptionDetailBill table
+  const loadBilledItems = async () => {
+    if (!selectedPrescription) return;
+    
+    try {
+      console.log('🔍 Loading billed items for prescription:', selectedPrescription.id);
+      const response = await axiosInstance.get(`/pharmacyapi/prescriptions/${selectedPrescription.id}/billed-items/`);
+      const billedItems = response.data;
+      
+      console.log('🔍 Billed items from database:', billedItems);
+      
+      if (billedItems.length > 0) {
+        const newSelectedItems = {};
+        const newQuantities = {};
+        const newIncludedItems = {};
+        
+        billedItems.forEach(item => {
+          newSelectedItems[item.detail_id] = {
+            batch_id: item.batch_id,
+            batch_no: item.batch_no,
+            brand_name: item.brand_name,
+            unit_price: item.unit_price,
+            max_quantity: item.quantity,
+            quantity: item.quantity,
+            bill_id: item.bill_id,
+            bill_status: item.bill_status,
+            is_paid: item.is_paid
+          };
+          newQuantities[item.detail_id] = item.quantity;
+          newIncludedItems[item.detail_id] = true;
+        });
+        
+        setSelectedItems(newSelectedItems);
+        setQuantities(newQuantities);
+        setIncludedItems(newIncludedItems);
+      } else {
+        // No billed items, reset selections for pending items
+        setSelectedItems({});
+        setQuantities({});
+        const initialIncluded = {};
+        selectedPrescription.details?.forEach(detail => {
+          if (detail.status === 'pending') {
+            initialIncluded[detail.id] = true;
+          }
+        });
+        setIncludedItems(initialIncluded);
+      }
+    } catch (error) {
+      console.error('Error loading billed items:', error);
+    }
+  };
+
+  // Load billed items when prescription is selected or status changes
+  useEffect(() => {
+    loadBilledItems();
+  }, [selectedPrescription?.id, selectedPrescription?.status]);
+
+  // Fetch all prescriptions for this patient
   useEffect(() => {
     if (selectedPatient?.id && storeId) {
       fetchPatientAllPrescriptions();
     }
   }, [selectedPatient?.id, storeId]);
-
-  useEffect(() => {
-    if (selectedPrescription) {
-      const prescriptionId = selectedPrescription.id;
-      
-      if (savedSelectionsRef.current[prescriptionId]) {
-        setSelectedItems(savedSelectionsRef.current[prescriptionId]);
-        setQuantities(savedQuantitiesRef.current[prescriptionId] || {});
-        setIncludedItems(savedIncludedItemsRef.current[prescriptionId] || {});
-      } else {
-        const initialIncluded = {};
-        selectedPrescription.details?.forEach(detail => {
-          if (detail.status === 'pending') initialIncluded[detail.id] = true;
-        });
-        setIncludedItems(initialIncluded);
-        setSelectedItems({});
-        setQuantities({});
-      }
-      
-      setAvailableBatches({});
-      setPollingActive(false);
-    }
-  }, [selectedPrescription?.id]);
 
   const fetchPatientAllPrescriptions = async () => {
     try {
@@ -76,47 +108,14 @@ const DispensaryDetail = ({
       
       if (selectedPrescription) {
         const updatedPrescription = prescriptionsData.find(rx => rx.id === selectedPrescription.id);
-        if (updatedPrescription) {
-          let detailsChanged = false;
-          if (updatedPrescription.details && selectedPrescription.details) {
-            for (let i = 0; i < updatedPrescription.details.length; i++) {
-              const oldDetail = selectedPrescription.details.find(d => d.id === updatedPrescription.details[i].id);
-              if (oldDetail && oldDetail.status !== updatedPrescription.details[i].status) {
-                detailsChanged = true;
-                break;
-              }
-            }
-          }
+        if (updatedPrescription && updatedPrescription.status !== selectedPrescription.status) {
+          console.log('Status changed from', selectedPrescription.status, 'to', updatedPrescription.status);
+          onPrescriptionSelect(updatedPrescription);
           
-          const statusChanged = updatedPrescription.status !== selectedPrescription.status;
-          
-          if (statusChanged || detailsChanged) {
-            const currentPendingSelections = {};
-            const currentPendingQuantities = {};
-            const currentIncludedItems = {};
-            
-            for (const detail of prescriptionDetails) {
-              const updatedDetail = updatedPrescription.details?.find(d => d.id === detail.id);
-              if (updatedDetail && updatedDetail.status === 'pending') {
-                if (selectedItems[detail.id]) currentPendingSelections[detail.id] = selectedItems[detail.id];
-                if (quantities[detail.id]) currentPendingQuantities[detail.id] = quantities[detail.id];
-                if (includedItems[detail.id]) currentIncludedItems[detail.id] = includedItems[detail.id];
-              }
-            }
-            
-            onPrescriptionSelect(updatedPrescription);
-            
-            if (Object.keys(currentPendingSelections).length > 0) {
-              setTimeout(() => {
-                setSelectedItems(currentPendingSelections);
-                setQuantities(currentPendingQuantities);
-                setIncludedItems(currentIncludedItems);
-              }, 100);
-            }
-            
-            if (statusChanged && updatedPrescription.status === 'paid') {
-              showMessage('Payment received! Ready to dispense.', 'success');
-            }
+          if (updatedPrescription.status === 'paid') {
+            showMessage('Payment received! Ready to dispense.', 'success');
+            // Reload billed items when payment is received
+            loadBilledItems();
           }
         }
       }
@@ -127,6 +126,7 @@ const DispensaryDetail = ({
 
   const prescriptionDetails = selectedPrescription?.details || [];
 
+  // Polling for status changes
   useEffect(() => {
     if (!pollingActive) return;
     if (!selectedPrescription || selectedPrescription.status !== 'billed') {
@@ -150,10 +150,10 @@ const DispensaryDetail = ({
         if (updatedPrescription && updatedPrescription.status !== selectedPrescription.status) {
           setPollingActive(false);
           onPrescriptionSelect(updatedPrescription);
-          fetchPatientAllPrescriptions();
           
           if (updatedPrescription.status === 'paid') {
             showMessage('Payment received! Ready to dispense.', 'success');
+            loadBilledItems();
           }
           if (onRefreshPatient) onRefreshPatient(selectedPatient.id);
         }
@@ -171,58 +171,8 @@ const DispensaryDetail = ({
     }
   }, [selectedPrescription?.status]);
 
-  const refreshPrescriptionData = async () => {
-    try {
-      const response = await axiosInstance.get(`/pharmacyapi/patient-prescriptions/${selectedPatient.id}/?store_id=${storeId}`);
-      
-      let prescriptionsData = [];
-      if (Array.isArray(response.data)) {
-        prescriptionsData = response.data;
-      } else if (typeof response.data === 'object' && response.data !== null) {
-        prescriptionsData = Object.values(response.data);
-      }
-      
-      const updatedPrescription = prescriptionsData.find(rx => rx.id === selectedPrescription.id);
-      
-      if (updatedPrescription) {
-        const currentPendingSelections = {};
-        const currentPendingQuantities = {};
-        const currentIncludedItems = {};
-        
-        for (const detail of prescriptionDetails) {
-          const updatedDetail = updatedPrescription.details?.find(d => d.id === detail.id);
-          if (updatedDetail && updatedDetail.status === 'pending') {
-            if (selectedItems[detail.id]) currentPendingSelections[detail.id] = selectedItems[detail.id];
-            if (quantities[detail.id]) currentPendingQuantities[detail.id] = quantities[detail.id];
-            if (includedItems[detail.id]) currentIncludedItems[detail.id] = includedItems[detail.id];
-          }
-        }
-        
-        onPrescriptionSelect(updatedPrescription);
-        
-        if (Object.keys(currentPendingSelections).length > 0) {
-          setTimeout(() => {
-            setSelectedItems(currentPendingSelections);
-            setQuantities(currentPendingQuantities);
-            setIncludedItems(currentIncludedItems);
-          }, 100);
-        }
-      }
-      
-      fetchPatientAllPrescriptions();
-    } catch (error) {
-      console.error('Error refreshing:', error);
-    }
-  };
-
   const toggleIncludeItem = (detailId) => {
     setIncludedItems(prev => ({ ...prev, [detailId]: !prev[detailId] }));
-    if (selectedPrescription) {
-      savedIncludedItemsRef.current[selectedPrescription.id] = {
-        ...savedIncludedItemsRef.current[selectedPrescription.id],
-        [detailId]: !includedItems[detailId]
-      };
-    }
   };
 
   const fetchAvailableBatches = async (detailId, productId) => {
@@ -254,16 +204,6 @@ const DispensaryDetail = ({
     if (detail) {
       const defaultQty = Math.min(detail.quantity_prescribed, maxQuantity);
       setQuantities(prev => ({ ...prev, [detailId]: defaultQty }));
-      
-      const prescriptionId = selectedPrescription.id;
-      savedSelectionsRef.current[prescriptionId] = {
-        ...savedSelectionsRef.current[prescriptionId],
-        [detailId]: { batch_id: batchId, brand_name: brandName, unit_price: unitPrice, max_quantity: maxQuantity }
-      };
-      savedQuantitiesRef.current[prescriptionId] = {
-        ...savedQuantitiesRef.current[prescriptionId],
-        [detailId]: defaultQty
-      };
     }
   };
 
@@ -272,11 +212,6 @@ const DispensaryDetail = ({
     const maxQty = selectedItems[detailId]?.max_quantity || 0;
     if (qty <= maxQty) {
       setQuantities(prev => ({ ...prev, [detailId]: qty }));
-      const prescriptionId = selectedPrescription.id;
-      savedQuantitiesRef.current[prescriptionId] = {
-        ...savedQuantitiesRef.current[prescriptionId],
-        [detailId]: qty
-      };
     }
   };
 
@@ -335,7 +270,23 @@ const DispensaryDetail = ({
       });
       
       showMessage(`Bill generated for ${itemsToBill.length} item(s)`, 'success');
-      await refreshPrescriptionData();
+      
+      // Reload billed items after billing
+      await loadBilledItems();
+      
+      // Refresh prescription data
+      const response = await axiosInstance.get(`/pharmacyapi/patient-prescriptions/${selectedPatient.id}/?store_id=${storeId}`);
+      let prescriptionsData = [];
+      if (Array.isArray(response.data)) {
+        prescriptionsData = response.data;
+      } else if (typeof response.data === 'object' && response.data !== null) {
+        prescriptionsData = Object.values(response.data);
+      }
+      const updatedPrescription = prescriptionsData.find(rx => rx.id === selectedPrescription.id);
+      if (updatedPrescription) {
+        onPrescriptionSelect(updatedPrescription);
+      }
+      
       if (onRefreshPatient) onRefreshPatient(selectedPatient.id);
     } catch (error) {
       console.error('Error:', error);
@@ -346,14 +297,19 @@ const DispensaryDetail = ({
   };
 
   const handleDispense = () => {
+    console.log('=== DISPENSE CHECK ===');
+    console.log('Selected items:', selectedItems);
+    
     const itemsToDispense = [];
-    for (const detail of prescriptionDetails) {
-      if (detail.status === 'paid') {
-        const selection = selectedItems[detail.id];
-        const quantity = quantities[detail.id];
-        if (selection && quantity > 0) {
+    
+    for (const [detailId, selection] of Object.entries(selectedItems)) {
+      const detail = prescriptionDetails.find(d => d.id === parseInt(detailId));
+      // Only dispense if the detail is paid
+      if (detail && detail.status === 'paid') {
+        const quantity = quantities[detailId] || selection.quantity || selection.max_quantity;
+        if (quantity > 0) {
           itemsToDispense.push({
-            detail_id: detail.id,
+            detail_id: parseInt(detailId),
             batch_id: selection.batch_id,
             brand_name: selection.brand_name,
             quantity: quantity,
@@ -363,10 +319,13 @@ const DispensaryDetail = ({
       }
     }
     
+    console.log('Items to dispense:', itemsToDispense);
+    
     if (itemsToDispense.length === 0) {
-      showMessage('No paid items ready', 'warning');
+      showMessage('No paid items ready for dispensing', 'warning');
       return;
     }
+    
     setDispenseItems(itemsToDispense);
     setShowDispenseModal(true);
   };
@@ -380,8 +339,31 @@ const DispensaryDetail = ({
         items: dispenseItems
       });
       showMessage('Dispensed successfully!', 'success');
-      await refreshPrescriptionData();
-      if (onRefreshPatient) onRefreshPatient(selectedPatient.id);
+      
+      // Wait a moment for backend to process
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Reload billed items after dispense to update status
+      await loadBilledItems();
+      
+      // Refresh prescription data to get updated statuses
+      const response = await axiosInstance.get(`/pharmacyapi/patient-prescriptions/${selectedPatient.id}/?store_id=${storeId}`);
+      let prescriptionsData = [];
+      if (Array.isArray(response.data)) {
+        prescriptionsData = response.data;
+      } else if (typeof response.data === 'object' && response.data !== null) {
+        prescriptionsData = Object.values(response.data);
+      }
+      const updatedPrescription = prescriptionsData.find(rx => rx.id === selectedPrescription.id);
+      if (updatedPrescription) {
+        onPrescriptionSelect(updatedPrescription);
+      }
+      
+      // Refresh the parent queue
+      if (onRefreshPatient) {
+        await onRefreshPatient(selectedPatient.id);
+      }
+      
     } catch (error) {
       console.error('Error:', error);
       showMessage('Error dispensing', 'danger');
@@ -413,7 +395,7 @@ const DispensaryDetail = ({
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        {/* Header - Updated to purple/pink gradient */}
+        {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -437,7 +419,7 @@ const DispensaryDetail = ({
           </div>
         </div>
 
-        {/* Prescription Tabs - Updated colors */}
+        {/* Prescription Tabs */}
         {patientPrescriptions.length > 1 && (
           <div className="flex gap-1 p-1 border-b bg-gray-50 overflow-x-auto">
             {patientPrescriptions.map(rx => (
@@ -461,7 +443,7 @@ const DispensaryDetail = ({
           <div className="py-3 text-center text-sm text-gray-500">No active prescriptions</div>
         ) : (
           <>
-            {/* Stats Bar - Updated colors */}
+            {/* Stats Bar */}
             <div className="px-3 py-2 bg-gradient-to-r from-purple-50 to-pink-50 border-b">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="flex flex-wrap gap-2">
@@ -560,9 +542,9 @@ const DispensaryDetail = ({
                         {!isPending && hasSelection && (
                           <div className="mt-1 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
                             <span className="font-medium">{selectedItems[detail.id]?.brand_name}</span>
-                            <span className="text-gray-400">({selectedItems[detail.id]?.batch_id})</span>
-                            <span>Qty: {quantities[detail.id] || 0}</span>
-                            <span className="text-purple-600">₦{((quantities[detail.id] || 0) * (selectedItems[detail.id]?.unit_price || 0)).toLocaleString()}</span>
+                            <span className="text-gray-400">({selectedItems[detail.id]?.batch_no})</span>
+                            <span>Qty: {quantities[detail.id] || selectedItems[detail.id]?.quantity}</span>
+                            <span className="text-purple-600">₦{((quantities[detail.id] || selectedItems[detail.id]?.quantity) * selectedItems[detail.id]?.unit_price).toLocaleString()}</span>
                           </div>
                         )}
                         
@@ -577,7 +559,7 @@ const DispensaryDetail = ({
               })}
             </div>
 
-            {/* Action Buttons - Updated colors */}
+            {/* Action Buttons */}
             <div className="border-t bg-gray-50 p-2 flex gap-2">
               {hasPendingSelected && (
                 <button
@@ -605,18 +587,6 @@ const DispensaryDetail = ({
                 </button>
               )}
             </div>
-            
-            {/* Empty state message */}
-            {!hasPendingSelected && !hasPaidItems && pendingItems.length > 0 && (
-              <div className="text-center text-xs text-gray-400 py-2 border-t">
-                Select items above to generate a bill
-              </div>
-            )}
-            {!hasPendingSelected && !hasPaidItems && pendingItems.length === 0 && prescriptionDetails.length > 0 && (
-              <div className="text-center text-xs text-gray-400 py-2 border-t">
-                All items processed
-              </div>
-            )}
           </>
         )}
       </div>

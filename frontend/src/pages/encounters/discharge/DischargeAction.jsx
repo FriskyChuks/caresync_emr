@@ -1,3 +1,5 @@
+// DischargeAction.jsx - Fixed case sensitivity
+
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../api/axiosInstance";
 import useAuth from "../../../hooks/useAuth";
@@ -12,9 +14,23 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Get user role with case-insensitive handling
+  const userRole = user?.user_category?.title?.toLowerCase() || '';
+  const isAdmin = userRole === 'admin' || userRole === 'superuser';
+  
+  // Case-insensitive role checks
+  const isDoctor = userRole === 'doctor' || isAdmin;
+  const isNurse = userRole === 'nurse' || isAdmin;
+
+  // Determine if this is an inpatient visit (ward)
+  const isInpatient = visit.is_inpatient || 
+                      (visit.room && visit.room !== "—") || 
+                      (visit.bed_number && visit.bed_number !== "—") ||
+                      visit.visit_type === 'inpatient';
+
   // Fetch discharge info → only needed for INPATIENTS
   useEffect(() => {
-    if (visit.is_inpatient) {
+    if (isInpatient) {
       const fetchDischarge = async () => {
         try {
           const res = await axiosInstance.get(
@@ -29,13 +45,13 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
       };
       fetchDischarge();
     }
-  }, [visit]);
+  }, [visit, isInpatient]);
 
   /**
    * OUTPATIENTS (clinic visits)
    * → Direct discharge with confirmation modal
    */
-  if (!visit.is_inpatient) {
+  if (!isInpatient) {
     const handleOutpatientDischarge = async () => {
       setLoading(true);
       try {
@@ -66,7 +82,6 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
             </svg>
           </button>
 
-          {/* Compact Confirmation Modal */}
           {showConfirm && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div className="absolute inset-0 bg-black/50" onClick={() => setShowConfirm(false)} />
@@ -136,7 +151,6 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
           Discharge
         </button>
 
-        {/* Regular Confirmation Modal */}
         {showConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50" onClick={() => setShowConfirm(false)} />
@@ -197,62 +211,134 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
    * INPATIENTS (ward visits)
    * → Doctor fills summary, nurse discharges with reason.
    */
-  if (visit.is_inpatient) {
-    // Doctor's flow
-    if (user?.user_category?.title === "doctor") {
-      if (!discharge) {
-        if (compact) {
-          return (
-            <>
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-md transition-colors"
-                title="Fill discharge summary"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </button>
-              {showConfirm && (
-                <DischargeSummaryForm
-                  visitId={visit.id}
-                  onSuccess={onSuccess}
-                  onClose={() => setShowConfirm(false)}
-                  compact={compact}
-                />
-              )}
-            </>
-          );
-        }
-
+  // Doctor's flow
+  if (isDoctor) {
+    if (!discharge) {
+      if (compact) {
         return (
           <>
             <button
               onClick={() => setShowConfirm(true)}
-              className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
-              title="Fill Discharge Summary"
+              className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-md transition-colors"
+              title="Fill discharge summary"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Fill Summary
             </button>
-
             {showConfirm && (
               <DischargeSummaryForm
                 visitId={visit.id}
                 onSuccess={onSuccess}
                 onClose={() => setShowConfirm(false)}
+                compact={compact}
               />
             )}
           </>
         );
       }
 
-      // Doctor - Summary already filled
+      return (
+        <>
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+            title="Fill Discharge Summary"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Fill Summary
+          </button>
+
+          {showConfirm && (
+            <DischargeSummaryForm
+              visitId={visit.id}
+              onSuccess={onSuccess}
+              onClose={() => setShowConfirm(false)}
+            />
+          )}
+        </>
+      );
+    }
+
+    // Doctor - Summary already filled
+    if (compact) {
+      return (
+        <span className="p-1.5 text-green-500 cursor-default" title="Discharge summary filled">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </span>
+      );
+    }
+
+    return (
+      <span className="px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded flex items-center gap-1">
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Summary filled
+      </span>
+    );
+  }
+
+  // Nurse's flow
+  if (isNurse) {
+    if (discharge && !discharge.reason) {
       if (compact) {
         return (
-          <span className="p-1.5 text-green-500 cursor-default" title="Discharge summary filled">
+          <>
+            <button
+              onClick={() => setShowConfirm(true)}
+              className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+              title="Discharge patient"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+
+            {showConfirm && (
+              <NurseDischargeModal
+                discharge={discharge}
+                onSuccess={onSuccess}
+                onClose={() => setShowConfirm(false)}
+                compact={compact}
+              />
+            )}
+          </>
+        );
+      }
+
+      return (
+        <>
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+            title="Discharge Patient"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Discharge
+          </button>
+
+          {showConfirm && (
+            <NurseDischargeModal
+              discharge={discharge}
+              onSuccess={onSuccess}
+              onClose={() => setShowConfirm(false)}
+            />
+          )}
+        </>
+      );
+    }
+
+    if (discharge?.reason) {
+      if (compact) {
+        return (
+          <span className="p-1.5 text-green-500 cursor-default" title="Patient discharged">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -265,104 +351,30 @@ const DischargeAction = ({ visit, onSuccess, compact = false }) => {
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Summary filled
+          Discharged
         </span>
       );
     }
 
-    // Nurse's flow
-    if (user?.user_category?.title === "nurse") {
-      if (discharge && !discharge.reason) {
-        if (compact) {
-          return (
-            <>
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                title="Discharge patient"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-
-              {showConfirm && (
-                <NurseDischargeModal
-                  discharge={discharge}
-                  onSuccess={onSuccess}
-                  onClose={() => setShowConfirm(false)}
-                  compact={compact}
-                />
-              )}
-            </>
-          );
-        }
-
-        return (
-          <>
-            <button
-              onClick={() => setShowConfirm(true)}
-              className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
-              title="Discharge Patient"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Discharge
-            </button>
-
-            {showConfirm && (
-              <NurseDischargeModal
-                discharge={discharge}
-                onSuccess={onSuccess}
-                onClose={() => setShowConfirm(false)}
-              />
-            )}
-          </>
-        );
-      }
-
-      if (discharge?.reason) {
-        if (compact) {
-          return (
-            <span className="p-1.5 text-green-500 cursor-default" title="Patient discharged">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
-          );
-        }
-
-        return (
-          <span className="px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Discharged
-          </span>
-        );
-      }
-
-      // Nurse - No summary yet
-      if (compact) {
-        return (
-          <span className="p-1.5 text-amber-500 cursor-help" title="No discharge summary yet - consult doctor">
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </span>
-        );
-      }
-
+    // Nurse - No summary yet
+    if (compact) {
       return (
-        <span className="px-2 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded flex items-center gap-1">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className="p-1.5 text-amber-500 cursor-help" title="No discharge summary yet - consult doctor">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Awaiting summary
         </span>
       );
     }
+
+    return (
+      <span className="px-2 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded flex items-center gap-1">
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Awaiting summary
+      </span>
+    );
   }
 
   return null;

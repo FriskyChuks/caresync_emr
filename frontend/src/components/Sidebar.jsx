@@ -29,15 +29,17 @@ import { useState, useEffect, useMemo } from "react";
 // Define role-based menu visibility
 const ROLE_PERMISSIONS = {
   ADMIN: ['admin', 'superuser', 'administrator'],
+  HIM: ['him_manager', 'him_staff','health_information_manager','health_information_staff','records_manager','records_staff','records'],
   PHARMACY_MANAGER: ['pharmacy_manager', 'pharmacy_store_manager'],
   PHARMACY_STAFF: ['pharmacist', 'pharmacy_staff'],
   LAB_MANAGER: ['lab_manager', 'lab_supervisor'],
-  LAB_STAFF: ['lab_technician', 'lab_staff'],
+  LAB_STAFF: ['lab_technician', 'lab_staff', 'MLS','medical_laboratory_technician','medical_laboratory_staff'],
   RADIOLOGIST: ['radiologist', 'radiology_staff'],
   DOCTOR: ['doctor', 'physician'],
   NURSE: ['nurse'],
   RECEPTIONIST: ['receptionist', 'front_desk'],
-  ACCOUNTANT: ['accountant', 'billing_staff'],
+  CASHIER: ['cashier', 'billing_staff'],
+  ACCOUNTANT: ['accountant', 'billing_staff', 'finance_manager'],
   INVENTORY_MANAGER: ['inventory_manager']
 };
 
@@ -63,13 +65,13 @@ const menuConfig = [
     label: "Patient Registration",
     icon: <UserPlus className="h-5 w-5" />,
     path: "/patient-registration",
-    roles: [ROLE_PERMISSIONS.RECEPTIONIST, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.ADMIN]
+    roles: [ROLE_PERMISSIONS.RECEPTIONIST, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.HIM]
   },
   {
     label: "Clinics",
     icon: <Building2 className="h-5 w-5" />,
     path: "/clinics",
-    roles: [ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.RECEPTIONIST]
+    roles: [ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.NURSE, ROLE_PERMISSIONS.RECEPTIONIST, ROLE_PERMISSIONS.HIM]
   },
   {
     label: "Wards",
@@ -81,7 +83,7 @@ const menuConfig = [
     label: "Appointments",
     icon: <Calendar className="h-5 w-5" />,
     path: "/appointment-list",
-    roles: [ROLE_PERMISSIONS.RECEPTIONIST, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.ADMIN]
+    roles: [ROLE_PERMISSIONS.RECEPTIONIST, ROLE_PERMISSIONS.DOCTOR, ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.HIM]
   },
   {
     label: "Laboratory",
@@ -185,13 +187,13 @@ const menuConfig = [
   {
     label: "Billing",
     icon: <CreditCard className="h-5 w-5" />,
-    roles: [ROLE_PERMISSIONS.ACCOUNTANT, ROLE_PERMISSIONS.ADMIN],
+    roles: [ROLE_PERMISSIONS.ACCOUNTANT, ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.CASHIER],
     children: [
       { 
         label: "Dashboard", 
         path: "/billing/cashier-dashboard", 
         icon: <Home className="h-4 w-4" />,
-        roles: [ROLE_PERMISSIONS.ACCOUNTANT, ROLE_PERMISSIONS.ADMIN]
+        roles: [ROLE_PERMISSIONS.ACCOUNTANT, ROLE_PERMISSIONS.ADMIN, ROLE_PERMISSIONS.CASHIER]
       },
     ],
   },

@@ -1,7 +1,7 @@
 // components/radiology/dashboardsubcomponents/DashboardFilters.js
 import React, { useState } from 'react';
 
-const DashboardFilters = ({ filters, onFilterChange }) => {
+const DashboardFilters = ({ filters, onFilterChange, onDatePreset }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleInputChange = (field, value) => {
@@ -22,6 +22,14 @@ const DashboardFilters = ({ filters, onFilterChange }) => {
     setShowAdvanced(false);
   };
 
+  const datePresets = [
+    { label: 'Today', value: 'today', action: () => onDatePreset('today') },
+    { label: 'Yesterday', value: 'yesterday', action: () => onDatePreset('yesterday') },
+    { label: 'Last 7 Days', value: 'last7', action: () => onDatePreset('last7') },
+    { label: 'Last 30 Days', value: 'last30', action: () => onDatePreset('last30') },
+    { label: 'This Month', value: 'month', action: () => onDatePreset('month') },
+  ];
+
   const hasActiveFilters = filters.patientSearch || filters.dateFrom || filters.dateTo || filters.status || filters.urgency;
 
   return (
@@ -30,7 +38,7 @@ const DashboardFilters = ({ filters, onFilterChange }) => {
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           {/* Patient Search */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1.5">
               Search Patient
             </label>
@@ -109,8 +117,8 @@ const DashboardFilters = ({ filters, onFilterChange }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="md:col-span-4">
-            <div className="flex items-center gap-2">
+          <div className="md:col-span-5">
+            <div className="flex items-center gap-2 flex-wrap">
               <button 
                 className={`inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${
                   showAdvanced 
@@ -193,21 +201,22 @@ const DashboardFilters = ({ filters, onFilterChange }) => {
                 </div>
               </div>
 
-              <div className="md:col-span-6 flex items-end">
-                {(filters.dateFrom || filters.dateTo) && (
-                  <button 
-                    className="inline-flex items-center px-3 py-2 text-xs font-medium border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
-                    onClick={() => {
-                      handleInputChange('dateFrom', '');
-                      handleInputChange('dateTo', '');
-                    }}
-                  >
-                    <svg className="w-3.5 h-3.5 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Clear Dates
-                  </button>
-                )}
+              {/* Date Presets */}
+              <div className="md:col-span-6">
+                <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                  Quick Date Range
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {datePresets.map((preset) => (
+                    <button
+                      key={preset.value}
+                      onClick={preset.action}
+                      className="px-2.5 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

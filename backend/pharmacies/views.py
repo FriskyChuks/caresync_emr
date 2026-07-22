@@ -780,6 +780,47 @@ def prescription_bill_items(request, pk):
         })
     except Prescription.DoesNotExist:
         return Response({'error': 'Prescription not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+# pharmacies/views.py - Add this view
+
+@api_view(['GET'])
+def prescription_billed_items(request, pk):
+    """
+    Get all billed items (PrescriptionDetailBill) for a prescription
+    GET /api/prescriptions/{pk}/billed-items/
+    """
+    try:
+        prescription = Prescription.objects.get(pk=pk)
+    except Prescription.DoesNotExist:
+        return Response({'error': 'Prescription not found'}, status=404)
+    
+    # Get all PrescriptionDetailBill records for this prescription
+    bill_records = PrescriptionDetailBill.objects.filter(
+        prescription_detail__prescription=prescription
+    ).select_related(
+        'prescription_detail',
+        'prescription_detail__product',
+        'batch',
+        'batch__brand',
+        'bill'
+    )
+    
+    result = []
+    for record in bill_records:
+        result.append({
+            'detail_id': record.prescription_detail.id,
+            'batch_id': record.batch.id,
+            'batch_no': record.batch.batch_no,
+            'brand_name': record.batch.brand.name,
+            'quantity': record.quantity,
+            'unit_price': float(record.unit_price),
+            'total_price': float(record.total_price),
+            'bill_status': record.bill.status,
+            'bill_id': record.bill.id,
+            'is_paid': record.bill.status == 'paid'
+        })
+    
+    return Response(result)
 
 @api_view(['POST'])
 def prescription_dispense_items(request, pk):
