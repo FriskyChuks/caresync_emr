@@ -1,1 +1,28 @@
-template/
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Logs
+*.log
+
+# Media uploads
+media/
+
+# Collected static files
+staticfiles/
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
