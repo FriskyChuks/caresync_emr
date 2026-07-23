@@ -51,7 +51,7 @@ const NurseDischargeModal = ({ discharge, onSuccess, onClose }) => {
     if (!selectedReason) return;
     
     setLoading(true);
-    console.log('Submitting discharge with reason:', selectedReason);
+    // console.log('Submitting discharge with reason:', selectedReason);
     
     try {
       // PATCH to update the existing discharge record with reason
@@ -69,6 +69,8 @@ const NurseDischargeModal = ({ discharge, onSuccess, onClose }) => {
       setLoading(false);
     }
   };
+
+  // console.log("Discharge Summary:", dischargeSummary);
 
   if (!discharge) return null;
 
@@ -170,7 +172,7 @@ const NurseDischargeModal = ({ discharge, onSuccess, onClose }) => {
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-gray-600">Prepared by</span>
                           <span className="text-xs font-medium text-gray-800">
-                            {dischargeSummary.summary_by || 'Doctor'}
+                            {dischargeSummary.summary_by_fullname || 'Doctor'}
                           </span>
                         </div>
                       </div>

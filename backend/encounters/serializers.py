@@ -148,13 +148,21 @@ class DischargeSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    summary_by_fullname = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Discharge
-        fields = ["id","visit","summary","summary_by","reason","reason_id","discharged_by","discharged_at",]
+        fields = ["id","visit","summary","summary_by","reason","reason_id","discharged_by","discharged_at","summary_by_fullname"]
         read_only_fields = ["discharged_at"]
 
     def validate_visit(self, visit):
         if hasattr(visit, "discharge"):
             raise serializers.ValidationError("This visit already has a discharge record.")
         return visit
+    
+    def get_summary_by_fullname(self, obj):
+        user = getattr(obj, "summary_by", None)
+        if not user:
+            return None
+        full_name = f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip()
+        return full_name if full_name else getattr(user, "username", None)
