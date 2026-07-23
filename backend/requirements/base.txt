@@ -1,9 +1,5 @@
 Django==6.0.7
 
-gunicorn==26.0.0
-psycopg[binary]==3.3.4
-mysqlclient
-
 python-decouple
 python-dotenv
 
@@ -14,7 +10,5 @@ djoser
 django-filter
 django-cors-headers
 django-countries
-
-whitenoise
 
 Pillow
