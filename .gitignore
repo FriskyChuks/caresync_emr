@@ -1,7 +1,14 @@
 # Environment
-.env
-.env.*
-!.env.example
+# Backend
+backend/.env
+
+# Frontend
+frontend/.env
+frontend/.env.production
+
+# Allow examples
+!backend/.env.example
+!frontend/.env.example
 
 # Python
 __pycache__/
