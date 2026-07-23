@@ -156,17 +156,27 @@ USE_TZ = True
 # ------------------------------------------------------------------------------
 
 STATIC_URL = "/static/"
-
 MEDIA_URL = "/media/"
 
-STATIC_ROOT = config(
-    "STATIC_ROOT",
-    default=str(BASE_DIR.parent / "static")
+# Source static files (CSS, JS, images you create)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Where collectstatic outputs files
+STATIC_ROOT = Path(
+    config(
+        "STATIC_ROOT",
+        default=BASE_DIR / "staticfiles",
+    )
 )
 
-MEDIA_ROOT = config(
-    "MEDIA_ROOT",
-    default=str(BASE_DIR.parent / "media")
+# Uploaded media files
+MEDIA_ROOT = Path(
+    config(
+        "MEDIA_ROOT",
+        default=BASE_DIR / "media",
+    )
 )
 
 # ------------------------------------------------------------------------------
